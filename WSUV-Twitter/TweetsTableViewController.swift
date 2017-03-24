@@ -9,7 +9,57 @@
 import UIKit
 
 class TweetsTableViewController: UITableViewController {
+ 
+    /******************* Text attributes *******************************/
+    lazy var tweetDateFormatter : DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        return dateFormatter
+    }()
+    
+    lazy var tweetBodyAttributes : [String : AnyObject] = {
+        let textStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
+        textStyle.lineBreakMode = .byWordWrapping
+        textStyle.alignment = .left
+        let bodyAttributes = [
+            NSFontAttributeName : UIFont.preferredFont(forTextStyle: UIFontTextStyle.body),
+            NSForegroundColorAttributeName : UIColor.black,
+            NSParagraphStyleAttributeName : textStyle
+        ]
+        return bodyAttributes
+    }()
+    
+    let tweetTitleAttributes = [
+        NSFontAttributeName : UIFont.preferredFont(forTextStyle: UIFontTextStyle.headline),
+        NSForegroundColorAttributeName : UIColor.purple
+    ]
+    
+    /******************* variable declaration ***************************/
+    lazy var tweets : [Tweet] = {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.tweets!
+    }()
+    
+    var tweetAttributedStringMap : [Tweet : NSAttributedString] = [:]
+    
+    func attributedStringForTweet(_ tweet : Tweet) -> NSAttributedString{
+        let attributedString = tweetAttributedStringMap[tweet]
+        if let string = attributedString{
+            return string
+        }
+        
+        let dateString = tweetDateFormatter.string(from: tweet.date as Date)
+        let tweetAttributedstring = NSMutableAttributedString(string: tweet.tweet, attributes: tweetTitleAttributes)
+        let bodyAttriButedString = NSAttributedString(string: tweet.tweet, attributes: tweetBodyAttributes)
+        
+        tweetAttributedstring.append(bodyAttriButedString)
+        tweetAttributedStringMap[tweet] = tweetAttributedstring
+        return tweetAttributedstring
+    }
 
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -29,23 +79,34 @@ class TweetsTableViewController: UITableViewController {
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 0
+        return self.tweets.count
     }
 
-    /*
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
 
         // Configure the cell...
+        //let tweet = self.tweets[indexPath.row]
+        //cell.textLabel?.numberOfLines = 0
+        //cell.textLabel?.attributedText = attributedStringForTweet(tweet)
 
         return cell
     }
-    */
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexpath: IndexPath) -> CGFloat {
+        return UITableViewAutomaticDimension
+    }
+    
+    override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableViewAutomaticDimension
+    }
+    
 
     /*
     // Override to support conditional editing of the table view.

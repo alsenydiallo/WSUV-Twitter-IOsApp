@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0100A3291E84B646004E37B3 /* Tweets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0100A3281E84B646004E37B3 /* Tweets.swift */; };
 		0100A32B1E84C323004E37B3 /* TweetsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0100A32A1E84C323004E37B3 /* TweetsTableViewController.swift */; };
+		0100A32D1E84D4AD004E37B3 /* Tweet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0100A32C1E84D4AD004E37B3 /* Tweet.swift */; };
+		0100A32F1E84DD4F004E37B3 /* AddTweetTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0100A32E1E84DD4F004E37B3 /* AddTweetTableViewController.swift */; };
 		0104E07D1E82E0BF00D36E6A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0104E07C1E82E0BF00D36E6A /* AppDelegate.swift */; };
 		0104E0821E82E0BF00D36E6A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0104E0801E82E0BF00D36E6A /* Main.storyboard */; };
 		0104E0841E82E0BF00D36E6A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0104E0831E82E0BF00D36E6A /* Assets.xcassets */; };
@@ -91,8 +92,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0100A3281E84B646004E37B3 /* Tweets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tweets.swift; sourceTree = "<group>"; };
 		0100A32A1E84C323004E37B3 /* TweetsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweetsTableViewController.swift; sourceTree = "<group>"; };
+		0100A32C1E84D4AD004E37B3 /* Tweet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tweet.swift; sourceTree = "<group>"; };
+		0100A32E1E84DD4F004E37B3 /* AddTweetTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTweetTableViewController.swift; sourceTree = "<group>"; };
 		0104E0791E82E0BF00D36E6A /* WSUV-Twitter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "WSUV-Twitter.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0104E07C1E82E0BF00D36E6A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0104E0811E82E0BF00D36E6A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -117,7 +119,7 @@
 		0104E0701E82E0BF00D36E6A = {
 			isa = PBXGroup;
 			children = (
-				0100A3281E84B646004E37B3 /* Tweets.swift */,
+				0100A32C1E84D4AD004E37B3 /* Tweet.swift */,
 				0104E08E1E82E11C00D36E6A /* Alamofire.xcodeproj */,
 				0104E07B1E82E0BF00D36E6A /* WSUV-Twitter */,
 				0104E07A1E82E0BF00D36E6A /* Products */,
@@ -137,6 +139,7 @@
 			children = (
 				0104E07C1E82E0BF00D36E6A /* AppDelegate.swift */,
 				0104E0801E82E0BF00D36E6A /* Main.storyboard */,
+				0100A32E1E84DD4F004E37B3 /* AddTweetTableViewController.swift */,
 				0100A32A1E84C323004E37B3 /* TweetsTableViewController.swift */,
 				0104E0831E82E0BF00D36E6A /* Assets.xcassets */,
 				0104E0851E82E0BF00D36E6A /* LaunchScreen.storyboard */,
@@ -292,9 +295,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0100A32D1E84D4AD004E37B3 /* Tweet.swift in Sources */,
 				0104E07D1E82E0BF00D36E6A /* AppDelegate.swift in Sources */,
 				0100A32B1E84C323004E37B3 /* TweetsTableViewController.swift in Sources */,
-				0100A3291E84B646004E37B3 /* Tweets.swift in Sources */,
+				0100A32F1E84DD4F004E37B3 /* AddTweetTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
