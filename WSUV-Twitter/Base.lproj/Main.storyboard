@@ -22,18 +22,18 @@
                                 <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="sQU-yV-uqT" id="ynK-AH-ZoJ">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="iBs-Wp-9mi">
-                                            <rect key="frame" x="15" y="4" width="34" height="21"/>
+                                            <rect key="frame" x="15" y="5" width="33.5" height="20.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="cnw-8o-8Em">
-                                            <rect key="frame" x="15" y="25" width="44" height="15"/>
+                                            <rect key="frame" x="15" y="25.5" width="44" height="14.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                             <nil key="textColor"/>
@@ -50,10 +50,15 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Root View Controller" id="93h-ol-5Ry">
                         <barButtonItem key="leftBarButtonItem" title="Item" id="dD9-qd-TM5"/>
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="cMx-W5-VD4"/>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="cMx-W5-VD4">
+                            <connections>
+                                <segue destination="RcF-Hd-REV" kind="presentation" id="GRm-ik-a2K"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                     <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="lYC-Td-eR4">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </refreshControl>
                 </tableViewController>
@@ -76,23 +81,19 @@
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="152"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="77a-1x-fyO" id="FSF-ES-y6g">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="151"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="151.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="dFZ-sO-afb">
-                                                    <rect key="frame" x="0.0" y="0.0" width="375" height="151"/>
+                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cvz-f5-jH5">
+                                                    <rect key="frame" x="0.0" y="0.0" width="375" height="152"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences" keyboardType="twitter" returnKeyType="done"/>
+                                                    <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES" calendarEvent="YES"/>
                                                 </textView>
                                             </subviews>
-                                            <constraints>
-                                                <constraint firstItem="dFZ-sO-afb" firstAttribute="leading" secondItem="FSF-ES-y6g" secondAttribute="leading" id="Yyq-XR-whH"/>
-                                                <constraint firstAttribute="bottom" secondItem="dFZ-sO-afb" secondAttribute="bottom" id="aYb-ZA-NFM"/>
-                                                <constraint firstItem="dFZ-sO-afb" firstAttribute="top" secondItem="FSF-ES-y6g" secondAttribute="top" id="hpg-L0-TRM"/>
-                                                <constraint firstAttribute="trailing" secondItem="dFZ-sO-afb" secondAttribute="trailing" id="pTQ-lv-haV"/>
-                                            </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                 </cells>
@@ -105,15 +106,26 @@
                     </tableView>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Root View Controller" id="nrg-jM-DQB">
-                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="STG-ug-dcJ"/>
-                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="C76-gF-148"/>
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="STG-ug-dcJ">
+                            <connections>
+                                <action selector="cancel:" destination="db6-JE-PyJ" id="Vqe-og-Pxa"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="C76-gF-148">
+                            <connections>
+                                <action selector="done:" destination="db6-JE-PyJ" id="eVD-6L-TsG"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="textViewField" destination="cvz-f5-jH5" id="25S-92-TwQ"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tW2-PG-58b" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="628" y="784"/>
+            <point key="canvasLocation" x="628" y="783.95802098950526"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="brX-KS-2rl">

@@ -41,7 +41,7 @@ class TweetsTableViewController: UITableViewController {
         return appDelegate.tweets!
     }()
     
-    var tweetAttributedStringMap : [Tweet : NSAttributedString] = [:]
+    /*var tweetAttributedStringMap : [Tweet : NSAttributedString] = [:]
     
     func attributedStringForTweet(_ tweet : Tweet) -> NSAttributedString{
         let attributedString = tweetAttributedStringMap[tweet]
@@ -57,7 +57,7 @@ class TweetsTableViewController: UITableViewController {
         tweetAttributedStringMap[tweet] = tweetAttributedstring
         return tweetAttributedstring
     }
-
+*/
     
     
     override func viewDidLoad() {
