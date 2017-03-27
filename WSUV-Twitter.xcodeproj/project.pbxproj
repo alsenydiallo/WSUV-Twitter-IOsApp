@@ -18,6 +18,8 @@
 		0104E0A81E82E13100D36E6A /* Alamofire.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0104E09A1E82E11D00D36E6A /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		01AE74CA1E8881BE003C43B3 /* AlamofireNetworkActivityIndicator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01AE74C71E88812C003C43B3 /* AlamofireNetworkActivityIndicator.framework */; };
 		01AE74CB1E8881BE003C43B3 /* AlamofireNetworkActivityIndicator.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 01AE74C71E88812C003C43B3 /* AlamofireNetworkActivityIndicator.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		01AE74D01E899D7B003C43B3 /* LogginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01AE74CF1E899D7B003C43B3 /* LogginViewController.swift */; };
+		01AE74D31E89A0D1003C43B3 /* CreatAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01AE74D21E89A0D1003C43B3 /* CreatAccountViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -127,6 +129,8 @@
 		0104E0881E82E0BF00D36E6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0104E08E1E82E11C00D36E6A /* Alamofire.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Alamofire.xcodeproj; path = Alamofire/Alamofire.xcodeproj; sourceTree = "<group>"; };
 		01AE74B81E88812B003C43B3 /* AlamofireNetworkActivityIndicator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = AlamofireNetworkActivityIndicator.xcodeproj; path = AlamofireNetworkActivityIndicator/AlamofireNetworkActivityIndicator.xcodeproj; sourceTree = "<group>"; };
+		01AE74CF1E899D7B003C43B3 /* LogginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogginViewController.swift; sourceTree = "<group>"; };
+		01AE74D21E89A0D1003C43B3 /* CreatAccountViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreatAccountViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +170,8 @@
 			children = (
 				0104E07C1E82E0BF00D36E6A /* AppDelegate.swift */,
 				0104E0801E82E0BF00D36E6A /* Main.storyboard */,
+				01AE74D21E89A0D1003C43B3 /* CreatAccountViewController.swift */,
+				01AE74CF1E899D7B003C43B3 /* LogginViewController.swift */,
 				0100A32E1E84DD4F004E37B3 /* AddTweetTableViewController.swift */,
 				0100A32A1E84C323004E37B3 /* TweetsTableViewController.swift */,
 				0104E0831E82E0BF00D36E6A /* Assets.xcassets */,
@@ -351,6 +357,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0100A32D1E84D4AD004E37B3 /* Tweet.swift in Sources */,
+				01AE74D01E899D7B003C43B3 /* LogginViewController.swift in Sources */,
+				01AE74D31E89A0D1003C43B3 /* CreatAccountViewController.swift in Sources */,
 				0104E07D1E82E0BF00D36E6A /* AppDelegate.swift in Sources */,
 				0100A32B1E84C323004E37B3 /* TweetsTableViewController.swift in Sources */,
 				0100A32F1E84DD4F004E37B3 /* AddTweetTableViewController.swift in Sources */,

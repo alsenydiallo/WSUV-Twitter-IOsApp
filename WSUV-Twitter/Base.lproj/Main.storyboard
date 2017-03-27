@@ -147,10 +147,10 @@
             </objects>
             <point key="canvasLocation" x="-364" y="654"/>
         </scene>
-        <!--View Controller-->
+        <!--Loggin View Controller-->
         <scene sceneID="Kjk-2X-acC">
             <objects>
-                <viewController id="1vA-dB-JCS" sceneMemberID="viewController">
+                <viewController id="1vA-dB-JCS" customClass="LogginViewController" customModule="WSUV_Twitter" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="bs6-Ox-DwE"/>
                         <viewControllerLayoutGuide type="bottom" id="rfG-Od-qdu"/>
@@ -175,20 +175,24 @@
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6ZM-fw-SAR">
-                                        <rect key="frame" x="126" y="284" width="123" height="30"/>
+                                        <rect key="frame" x="126" y="284" width="123" height="33"/>
+                                        <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="123" id="Ylg-VB-Upk"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <state key="normal" title="Loggin">
-                                            <color key="titleColor" red="0.13988114770000001" green="0.22345723740000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
+                                        <connections>
+                                            <action selector="logginButton:" destination="1vA-dB-JCS" eventType="touchUpInside" id="yrF-mj-GoC"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EVD-ZN-H0N">
-                                        <rect key="frame" x="34.5" y="348" width="306" height="30"/>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                        <rect key="frame" x="10.5" y="351" width="354" height="33"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <state key="normal" title="Don't have an account ? click here to sign up">
-                                            <color key="titleColor" red="0.13988114770000001" green="0.22345723740000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
                                             <segue destination="R1o-BK-F2x" kind="presentation" id="Z4l-iU-bD8"/>
@@ -228,15 +232,20 @@
                             <constraint firstAttribute="trailing" secondItem="Hod-Gb-BuN" secondAttribute="trailing" id="imX-2u-1ib"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="UsernameTextField" destination="Yis-pI-fhr" id="F1t-Bq-qPf"/>
+                        <outlet property="passwordTextField" destination="1uD-ac-I5p" id="7lL-AM-2tf"/>
+                        <outlet property="usernameTextField" destination="Yis-pI-fhr" id="4XT-Rd-luV"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Euc-sa-cAg" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-364" y="-783.05847076461771"/>
         </scene>
-        <!--View Controller-->
+        <!--Creat Account View Controller-->
         <scene sceneID="Bpx-mS-j6o">
             <objects>
-                <viewController id="R1o-BK-F2x" sceneMemberID="viewController">
+                <viewController id="R1o-BK-F2x" customClass="CreatAccountViewController" customModule="WSUV_Twitter" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Bz0-7P-ODQ"/>
                         <viewControllerLayoutGuide type="bottom" id="cxs-nO-NJx"/>
@@ -251,7 +260,7 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Creat Account" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yJy-IB-VlV">
                                         <rect key="frame" x="79" y="44" width="223" height="29"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="24"/>
-                                        <color key="textColor" red="0.13988114770000001" green="0.22345723740000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="textColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Username" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="CGm-r8-ybd">
@@ -274,17 +283,29 @@
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e3d-5Q-nts">
                                         <rect key="frame" x="232" y="307" width="93" height="33"/>
+                                        <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
-                                        <state key="normal" title="Creat"/>
+                                        <state key="normal" title="Creat">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="creatAccountButton:" destination="R1o-BK-F2x" eventType="touchUpInside" id="j0w-AJ-JkH"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Svx-kD-wHK">
-                                        <rect key="frame" x="56" y="308" width="89" height="30"/>
+                                        <rect key="frame" x="56" y="308.5" width="89" height="30"/>
+                                        <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="89" id="347-WF-pYd"/>
                                             <constraint firstAttribute="height" constant="30" id="Tkc-kV-evg"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
-                                        <state key="normal" title="Cancel"/>
+                                        <state key="normal" title="Cancel">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="cancelButton:" destination="R1o-BK-F2x" eventType="touchUpInside" id="Q3a-Ty-dCK"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" red="0.2657317065" green="0.74054402900000005" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -317,6 +338,11 @@
                             <constraint firstItem="cxs-nO-NJx" firstAttribute="top" secondItem="bNa-nx-r10" secondAttribute="bottom" id="jRZ-D2-v7K"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="passwordTextField" destination="lM2-WH-buf" id="AI2-Cx-ZOU"/>
+                        <outlet property="passwordTextField2" destination="Uhl-iZ-2Bc" id="bec-3D-8T1"/>
+                        <outlet property="usernameTextField" destination="CGm-r8-ybd" id="qi5-Ri-k2P"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ksc-kK-rO4" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
