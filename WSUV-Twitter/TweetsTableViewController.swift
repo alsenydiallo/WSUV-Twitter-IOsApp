@@ -93,7 +93,7 @@ class TweetsTableViewController: UITableViewController {
 
         // Configure the cell...
         //let tweet = self.tweets[indexPath.row]
-        //cell.textLabel?.numberOfLines = 0
+        cell.textLabel?.numberOfLines = 0
         //cell.textLabel?.attributedText = attributedStringForTweet(tweet)
 
         return cell
