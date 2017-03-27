@@ -1,0 +1,3 @@
+[submodule "AlamofireNetworkActivityIndicator"]
+	path = AlamofireNetworkActivityIndicator
+	url = https://github.com/Alamofire/AlamofireNetworkActivityIndicator.git
