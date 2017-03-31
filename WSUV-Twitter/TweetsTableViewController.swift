@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Alamofire
 
 class TweetsTableViewController: UITableViewController {
  
@@ -36,28 +37,26 @@ class TweetsTableViewController: UITableViewController {
     ]
     
     /******************* variable declaration ***************************/
-    lazy var tweets : [Tweet] = {
+    lazy var tweets = { () -> [Tweet] in
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        return appDelegate.tweets!
+        return appDelegate.tweets
     }()
     
-    /*var tweetAttributedStringMap : [Tweet : NSAttributedString] = [:]
+    var tweetAttributedStringMap : [Tweet : NSAttributedString] = [:]
     
-    func attributedStringForTweet(_ tweet : Tweet) -> NSAttributedString{
+    func attributedStringForTweet(_ tweet : Tweet) -> NSAttributedString {
         let attributedString = tweetAttributedStringMap[tweet]
-        if let string = attributedString{
+        if let string = attributedString { // already stored?
             return string
         }
-        
         let dateString = tweetDateFormatter.string(from: tweet.date as Date)
-        let tweetAttributedstring = NSMutableAttributedString(string: tweet.tweet, attributes: tweetTitleAttributes)
-        let bodyAttriButedString = NSAttributedString(string: tweet.tweet, attributes: tweetBodyAttributes)
-        
-        tweetAttributedstring.append(bodyAttriButedString)
-        tweetAttributedStringMap[tweet] = tweetAttributedstring
-        return tweetAttributedstring
+        let title = String(format: "%@ - %@\n", tweet.username, dateString)
+        let tweetAttributedString = NSMutableAttributedString(string: title, attributes: tweetTitleAttributes)
+        let bodyAttributedString = NSAttributedString(string: tweet.tweet as String, attributes: tweetBodyAttributes)
+        tweetAttributedString.append(bodyAttributedString)
+        tweetAttributedStringMap[tweet] = tweetAttributedString
+        return tweetAttributedString
     }
-*/
     
     
     override func viewDidLoad() {
@@ -68,6 +67,15 @@ class TweetsTableViewController: UITableViewController {
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        /*NotificationCenter.default.addObserver(
+            forName: kAddTweetNotification,
+            object: nil,
+            queue: nil) { (note : Notification) -> Void in
+                if !self.refreshControl!.isRefreshing {
+                    self.refreshControl!.beginRefreshing()
+                    self.refreshTweets(self)
+                }
+        }*/
     }
 
     override func didReceiveMemoryWarning() {
@@ -84,17 +92,19 @@ class TweetsTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return self.tweets.count
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return (appDelegate.tweets.count)
     }
 
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "tweet", for: indexPath)
 
         // Configure the cell...
-        //let tweet = self.tweets[indexPath.row]
-        cell.textLabel?.numberOfLines = 0
-        //cell.textLabel?.attributedText = attributedStringForTweet(tweet)
+        let tweet = self.tweets[indexPath.row]
+        
+        cell.textLabel?.numberOfLines = 0 // multi-line label
+        cell.textLabel?.attributedText = attributedStringForTweet(tweet)
 
         return cell
     }
@@ -129,21 +139,6 @@ class TweetsTableViewController: UITableViewController {
     */
 
     /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -152,5 +147,125 @@ class TweetsTableViewController: UITableViewController {
         // Pass the selected object to the new view controller.
     }
     */
+    
+    
+    @IBAction func refreshTweets(_ sender: UIRefreshControl) {
+        // If successfully fetched new tweets
+        // self.tableView.reloadData(); self.refreshControl?.endRefreshing();
+        // If error
+        // display alert with message; self.refreshControl?.endRefreshing();
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+        let lastTweetDate = appDelegate.lastTweetDate()
+        let dateStr = dateFormatter.string(from: lastTweetDate as Date)
+        
+        // format date string from latest stored tweet...
+        Alamofire.request(kBaseURLString + "/get-tweets.cgi", method: .get, parameters: ["date": dateStr]).responseJSON{ response in
+            
+            switch(response.result) {
+            case .success(let JSON):
+                NSLog("request successfull")
+                let dict = JSON as! [String : AnyObject]
+                let tweets = dict["tweets"] as! [[String : AnyObject]]
+                // ... create a new Tweet object for each returned tweet dictionary
+                // ... add new (sorted) tweets to appDelegate.tweets...
+                
+                for tweet in tweets {
+                    let isdeleted = tweet["isdeleted"] as! Int
+                    if isdeleted == 0 {
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
+                        let someDateTime = formatter.date(from: tweet["time_stamp"] as! String)
+                    
+                        let t = Tweet(tweet_id:tweet["tweet_id"] as! Int, username:tweet["username"] as! String, isDeleted:isdeleted, tweet:tweet["tweet"] as! NSString, date:someDateTime!)
+                        
+                        //let id = tweet["tweet_id"] as! Int
+                        appDelegate.tweets.append(t)
+                    }
+                    else{
+                        //let id = tweet["tweet_id"] as! Int
+                        //_ = appDelegate.tweets.removeValue(forKey: id)
+                    }
+                }
+                appDelegate.tweets.sort(by: {$0.date > $1.date})
+                self.tableView.reloadData() // force table-view to be updated
+                self.refreshControl?.endRefreshing()
+                
+            case .failure(let error):
+                let message : String
+                if let httpStatusCode = response.response?.statusCode {
+                    switch(httpStatusCode) {
+                    case 404:
+                        NSLog("404 invalid request")
+                    case 500:
+                        message = "Server error (my bad)"
+                        NSLog("request failled: \(message)")
+                    default:
+                        NSLog("Error occured")
+                        break
+                    }
+                    
+                } else { // probably network or server timeout
+                    message = error.localizedDescription
+                }
+                // ... display alert with message ..
+                self.refreshControl?.endRefreshing()
+            }
+        }
+    }
+    
+    @IBAction func loginButton(_ sender: UIBarButtonItem) {
+        let alertController = UIAlertController(title: "Login", message: "Please Log in", preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
+            let usernameTextField = alertController.textFields![0]
+            let passwordTextField = alertController.textFields![1]
+            // ... check for empty textfields
+            if let username = usernameTextField.text {
+                if let password = passwordTextField.text {
+                    //self.loginUser(usernameTextField.text!, password: passwordTextField.text!)
+                    self.loginUser(username, passsword: password)
+                }
+            }
+        }))
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        alertController.addTextField { (textField : UITextField) -> Void in
+            textField.placeholder = "Username"
+        }
+        alertController.addTextField { (textField : UITextField) -> Void in
+            textField.isSecureTextEntry = true
+            textField.placeholder = "Password"
+        }
 
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func loginUser(_ username:String, passsword password:String){
+        NSLog("server time out: \(username)")
+        NSLog("server time out: \(password)")
+        
+        let urlString = kBaseURLString + "/login.cgi"
+        let parameters = [
+            "username" : username, // username and password
+            "password" : password, // obtained from user
+            "action" : "login"
+        ]
+        
+        Alamofire.request(urlString, method: .post, parameters: parameters)
+            .responseJSON(completionHandler:  {response in
+            switch(response.result) {
+            case .success(let JSON):
+                break
+                // save username
+                // save password and session_token in keychain
+                // enable "add tweet" button
+            // change title of controller to show username, etc...
+            case .failure(let error):
+                break
+                // inform user of error
+            }})
+    }
+    
 }

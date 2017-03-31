@@ -8,27 +8,35 @@
 
 import UIKit
 import Alamofire
-import AlamofireNetworkActivityIndicator
+
+let kBaseURLString = "https://ezekiel.encs.vancouver.wsu.edu/~cs458/cgi-bin"
+let kAddTweetNotification = Notification.Name("kAddTweetNotification")
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var tweets: [Tweet]?
+    var tweets: [Tweet] = []
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        NetworkActivityIndicatorManager.shared.isEnabled = true
-        NetworkActivityIndicatorManager.shared.startDelay = 1.0
-        NetworkActivityIndicatorManager.shared.completionDelay = 0.2
-        
-        tweets = []
-        let Tweets : Tweet = Tweet()
-        Tweets.getTweets()
         return true
     }
 
+    func lastTweetDate() -> Date {
+        /*if tweets?.count == 0 {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
+            let someDateTime = formatter.date(from: "2016/10/08 22:31:12")
+            return someDateTime!
+        }
+        return Date()*/
+        let oneYear = TimeInterval(60 * 60 * 24 * 365)
+        return Date(timeIntervalSinceNow: -oneYear)
+    }
+    
+    
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
@@ -51,6 +59,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
+    
 
 }
 
