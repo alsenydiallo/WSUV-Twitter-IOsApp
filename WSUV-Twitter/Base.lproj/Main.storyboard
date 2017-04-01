@@ -35,7 +35,7 @@
                     <navigationItem key="navigationItem" title="Tweets " id="93h-ol-5Ry">
                         <barButtonItem key="leftBarButtonItem" title="👤" id="dD9-qd-TM5">
                             <connections>
-                                <action selector="loginButton:" destination="009-7i-4Wd" id="ube-yF-yiW"/>
+                                <action selector="manageAccount:" destination="009-7i-4Wd" id="ZPR-gk-Oro"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="cMx-W5-VD4">

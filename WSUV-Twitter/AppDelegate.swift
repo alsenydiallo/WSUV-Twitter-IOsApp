@@ -11,12 +11,14 @@ import Alamofire
 
 let kBaseURLString = "https://ezekiel.encs.vancouver.wsu.edu/~cs458/cgi-bin"
 let kAddTweetNotification = Notification.Name("kAddTweetNotification")
+let session_token = ""
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     var tweets: [Tweet] = []
+    let kWazzuTwitterPassword = "WazzuTwitterPassword" // KeyChain service
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {

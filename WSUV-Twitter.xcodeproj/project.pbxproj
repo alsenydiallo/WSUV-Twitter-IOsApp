@@ -15,6 +15,7 @@
 		0109BC391E8C63990074C61C /* Tweet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0109BC381E8C63990074C61C /* Tweet.swift */; };
 		0109BC531E8C64130074C61C /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0109BC461E8C63F80074C61C /* Alamofire.framework */; };
 		0109BC541E8C64130074C61C /* Alamofire.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 0109BC461E8C63F80074C61C /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		011B8FB51E8EECD1001D0850 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 011B8FB41E8EECD1001D0850 /* SSKeychain.m */; };
 		018623871E8C65AD000E3F6A /* AddTweetTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018623861E8C65AD000E3F6A /* AddTweetTableViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -101,6 +102,9 @@
 		0104E0881E82E0BF00D36E6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0109BC381E8C63990074C61C /* Tweet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tweet.swift; sourceTree = "<group>"; };
 		0109BC3A1E8C63F80074C61C /* Alamofire.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Alamofire.xcodeproj; path = Alamofire/Alamofire.xcodeproj; sourceTree = "<group>"; };
+		011B8FB31E8EECD1001D0850 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
+		011B8FB41E8EECD1001D0850 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
+		011B8FBD1E8EED16001D0850 /* WSUV-Twitter-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "WSUV-Twitter-Bridging-Header.h"; path = "WSUV-Twitter/WSUV-Twitter-Bridging-Header.h"; sourceTree = "<group>"; };
 		018623861E8C65AD000E3F6A /* AddTweetTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTweetTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -122,6 +126,7 @@
 				0109BC3A1E8C63F80074C61C /* Alamofire.xcodeproj */,
 				0104E07B1E82E0BF00D36E6A /* WSUV-Twitter */,
 				0104E07A1E82E0BF00D36E6A /* Products */,
+				011B8FBD1E8EED16001D0850 /* WSUV-Twitter-Bridging-Header.h */,
 			);
 			sourceTree = "<group>";
 		};
@@ -136,6 +141,8 @@
 		0104E07B1E82E0BF00D36E6A /* WSUV-Twitter */ = {
 			isa = PBXGroup;
 			children = (
+				011B8FB31E8EECD1001D0850 /* SSKeychain.h */,
+				011B8FB41E8EECD1001D0850 /* SSKeychain.m */,
 				0109BC381E8C63990074C61C /* Tweet.swift */,
 				0104E07C1E82E0BF00D36E6A /* AppDelegate.swift */,
 				0104E0801E82E0BF00D36E6A /* Main.storyboard */,
@@ -197,6 +204,7 @@
 					0104E0781E82E0BF00D36E6A = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = 266548894Y;
+						LastSwiftMigration = 0820;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -299,6 +307,7 @@
 				0104E07D1E82E0BF00D36E6A /* AppDelegate.swift in Sources */,
 				0100A32B1E84C323004E37B3 /* TweetsTableViewController.swift in Sources */,
 				018623871E8C65AD000E3F6A /* AddTweetTableViewController.swift in Sources */,
+				011B8FB51E8EECD1001D0850 /* SSKeychain.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,12 +439,15 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = 266548894Y;
 				INFOPLIST_FILE = "WSUV-Twitter/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "alsenydiallo.WSUV-Twitter";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "WSUV-Twitter/WSUV-Twitter-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -445,12 +457,14 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = 266548894Y;
 				INFOPLIST_FILE = "WSUV-Twitter/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "alsenydiallo.WSUV-Twitter";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "WSUV-Twitter/WSUV-Twitter-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;

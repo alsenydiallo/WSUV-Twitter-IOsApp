@@ -149,11 +149,10 @@ class TweetsTableViewController: UITableViewController {
     */
     
     
+    /*
+        Refresh action inplementation. refresh is trigered on pull down gesture
+     */
     @IBAction func refreshTweets(_ sender: UIRefreshControl) {
-        // If successfully fetched new tweets
-        // self.tableView.reloadData(); self.refreshControl?.endRefreshing();
-        // If error
-        // display alert with message; self.refreshControl?.endRefreshing();
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -169,8 +168,6 @@ class TweetsTableViewController: UITableViewController {
                 NSLog("request successfull")
                 let dict = JSON as! [String : AnyObject]
                 let tweets = dict["tweets"] as! [[String : AnyObject]]
-                // ... create a new Tweet object for each returned tweet dictionary
-                // ... add new (sorted) tweets to appDelegate.tweets...
                 
                 for tweet in tweets {
                     let isdeleted = tweet["isdeleted"] as! Int
@@ -181,12 +178,10 @@ class TweetsTableViewController: UITableViewController {
                     
                         let t = Tweet(tweet_id:tweet["tweet_id"] as! Int, username:tweet["username"] as! String, isDeleted:isdeleted, tweet:tweet["tweet"] as! NSString, date:someDateTime!)
                         
-                        //let id = tweet["tweet_id"] as! Int
                         appDelegate.tweets.append(t)
                     }
                     else{
-                        //let id = tweet["tweet_id"] as! Int
-                        //_ = appDelegate.tweets.removeValue(forKey: id)
+                        //XXX implent delete tweet
                     }
                 }
                 appDelegate.tweets.sort(by: {$0.date > $1.date})
@@ -215,33 +210,67 @@ class TweetsTableViewController: UITableViewController {
             }
         }
     }
+    /******************************************************** END of RefreshAction ************************************************/
     
-    @IBAction func loginButton(_ sender: UIBarButtonItem) {
-        let alertController = UIAlertController(title: "Login", message: "Please Log in", preferredStyle: .alert)
-        alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
-            let usernameTextField = alertController.textFields![0]
-            let passwordTextField = alertController.textFields![1]
-            // ... check for empty textfields
-            if let username = usernameTextField.text {
-                if let password = passwordTextField.text {
-                    //self.loginUser(usernameTextField.text!, password: passwordTextField.text!)
-                    self.loginUser(username, passsword: password)
-                }
-            }
-        }))
+    /*
+        Manage account menu
+     */
+    @IBAction func manageAccount(_ sender: UIBarButtonItem) {
+        let alertController = UIAlertController(title: "Manage Account", message: nil, preferredStyle: .actionSheet)
+        
         alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         
-        alertController.addTextField { (textField : UITextField) -> Void in
-            textField.placeholder = "Username"
-        }
-        alertController.addTextField { (textField : UITextField) -> Void in
-            textField.isSecureTextEntry = true
-            textField.placeholder = "Password"
-        }
+        alertController.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
 
+            let alertC = UIAlertController(title: "Register", message: "Please chose your username & paswword", preferredStyle: .alert)
+            alertC.addAction(UIAlertAction(title: "Register", style: .default, handler: nil))
+            
+            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            alertC.addTextField { (textField : UITextField) -> Void in
+                textField.placeholder = "Username"
+            }
+            alertC.addTextField { (textField : UITextField) -> Void in
+                textField.isSecureTextEntry = true
+                textField.placeholder = "Password"
+            }
+            
+            self.present(alertC, animated: true, completion: nil)
+        }))
+        
+        alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
+            
+            let alertC = UIAlertController(title: "Login", message: "Please enter your username & paswword", preferredStyle: .alert)
+            alertC.addAction(UIAlertAction(title: "Login", style: .default, handler: nil))
+            
+            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            alertC.addTextField { (textField : UITextField) -> Void in
+                textField.placeholder = "Username"
+            }
+            alertC.addTextField { (textField : UITextField) -> Void in
+                textField.isSecureTextEntry = true
+                textField.placeholder = "Password"
+            }
+            
+            self.present(alertC, animated: true, completion: nil)
+        }))
+        
+        alertController.addAction(UIAlertAction(title: "Logout", style: .default, handler: { (UIAlertAction) -> Void in
+            //XXX add handler code
+        }))
+        
+        alertController.addAction(UIAlertAction(title: "Reset Password", style: .default, handler: { (UIAlertAction) -> Void in
+            //XXX add handler code
+        }))
+        
         self.present(alertController, animated: true, completion: nil)
     }
+    /*************************************************** End of Menu alert view ****************************************************/
     
+    /*
+        Loggin helper function.
+    */
     func loginUser(_ username:String, passsword password:String){
         NSLog("server time out: \(username)")
         NSLog("server time out: \(password)")
@@ -257,15 +286,45 @@ class TweetsTableViewController: UITableViewController {
             .responseJSON(completionHandler:  {response in
             switch(response.result) {
             case .success(let JSON):
-                break
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let service = appDelegate.kWazzuTwitterPassword
+                print(JSON)
                 // save username
                 // save password and session_token in keychain
                 // enable "add tweet" button
             // change title of controller to show username, etc...
+                //SSKeychain.setPassword(password, forService: service, account: username)
             case .failure(let error):
+                print(error)
                 break
                 // inform user of error
             }})
     }
+    /*********************************************************** Login helper function ********************************************/
     
+    /*
+     let alertController = UIAlertController(title: "Login", message: "Please Log in", preferredStyle: .alert)
+     alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
+     let usernameTextField = alertController.textFields![0]
+     let passwordTextField = alertController.textFields![1]
+     // ... check for empty textfields
+     if let username = usernameTextField.text {
+     if let password = passwordTextField.text {
+     //self.loginUser(usernameTextField.text!, password: passwordTextField.text!)
+     self.loginUser(username, passsword: password)
+     }
+     }
+     }))
+     alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+     
+     alertController.addTextField { (textField : UITextField) -> Void in
+     textField.placeholder = "Username"
+     }
+     alertController.addTextField { (textField : UITextField) -> Void in
+     textField.isSecureTextEntry = true
+     textField.placeholder = "Password"
+     }
+     
+     self.present(alertController, animated: true, completion: nil)
+     */
 }

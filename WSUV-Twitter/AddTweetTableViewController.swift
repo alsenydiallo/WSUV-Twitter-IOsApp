@@ -7,13 +7,32 @@
 //
 
 import UIKit
+import Alamofire
 
 class AddTweetTableViewController: UITableViewController {
 
     @IBOutlet weak var textViewField: UITextView!
     
     @IBAction func done(_ sender: UIBarButtonItem) {
-        
+        //let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if let tweet = textViewField.text{
+            let parameters = [
+                "username" : "diko",
+                "session_token": ""
+            ]
+            
+            Alamofire.request(kBaseURLString + "/login.cgi", method:.post, parameters:parameters).responseJSON{ response in
+                
+                switch(response.result){
+                case .success(let JSON):
+                    print(JSON)
+                    break
+                case .failure(let error):
+                    print(error)
+                }
+            }
+            
+        }
         self.dismiss(animated: true, completion: nil)
     }
     
