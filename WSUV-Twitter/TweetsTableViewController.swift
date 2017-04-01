@@ -210,7 +210,7 @@ class TweetsTableViewController: UITableViewController {
             }
         }
     }
-    /******************************************************** END of RefreshAction ************************************************/
+    /******************************************** END of RefreshAction ************************************/
     
     /*
         Manage account menu
@@ -220,10 +220,21 @@ class TweetsTableViewController: UITableViewController {
         
         alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         
+        // Register user alert
         alertController.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
 
-            let alertC = UIAlertController(title: "Register", message: "Please chose your username & paswword", preferredStyle: .alert)
-            alertC.addAction(UIAlertAction(title: "Register", style: .default, handler: nil))
+            let alertC = UIAlertController(title: "Register", message: "Please chose a username & paswword", preferredStyle: .alert)
+            alertC.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
+                let usernameTextField = alertC.textFields![0]
+                let passwordTextField = alertC.textFields![1]
+                
+                // ... check for empty textfields
+                if let username = usernameTextField.text {
+                    if let password = passwordTextField.text {
+                        self.registerUser(username, passsword: password)
+                    }
+                }
+            }))
             
             alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             
@@ -238,9 +249,10 @@ class TweetsTableViewController: UITableViewController {
             self.present(alertC, animated: true, completion: nil)
         }))
         
+        // Login user alert
         alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
             
-            let alertC = UIAlertController(title: "Login", message: "Please enter your username & paswword", preferredStyle: .alert)
+            let alertC = UIAlertController(title: "Login", message: "Please login", preferredStyle: .alert)
             alertC.addAction(UIAlertAction(title: "Login", style: .default, handler: nil))
             
             alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
@@ -256,20 +268,59 @@ class TweetsTableViewController: UITableViewController {
             self.present(alertC, animated: true, completion: nil)
         }))
         
+        // Logout user alert
         alertController.addAction(UIAlertAction(title: "Logout", style: .default, handler: { (UIAlertAction) -> Void in
             //XXX add handler code
         }))
         
+        // Reset user password
         alertController.addAction(UIAlertAction(title: "Reset Password", style: .default, handler: { (UIAlertAction) -> Void in
             //XXX add handler code
         }))
         
         self.present(alertController, animated: true, completion: nil)
     }
-    /*************************************************** End of Menu alert view ****************************************************/
+    /****************************************** End of Menu alert view ***************************************/
     
     /*
-        Loggin helper function.
+        Register helper function.
+    */
+    func registerUser(_ username:String, passsword password:String){
+        NSLog("server time out: \(username)")
+        NSLog("server time out: \(password)")
+        
+        let urlString = kBaseURLString + "/register.cgi"
+        let parameters = [
+            "username" : username, // username and password
+            "password" : password, // obtained from user
+        ]
+        
+        Alamofire.request(urlString, method: .post, parameters: parameters)
+            .responseJSON(completionHandler:  {response in
+            switch(response.result) {
+            case .success(let JSON):
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let dict = JSON as! [String : AnyObject]
+                appDelegate.username = username
+                appDelegate.session_token = dict["session_token"] as! String
+                print(appDelegate.session_token)
+                self.navigationController?.title = appDelegate.username
+                // save username
+                // save password and session_token in keychain
+                // enable "add tweet" button
+                // change title of controller to show username, etc...
+                //SSKeychain.setPassword(password, forService: service, account: username)
+            case .failure(let error):
+                print(error)
+                break
+                // inform user of error
+            }})
+    }
+    /*************************************** End of register helper function *********************************/
+    
+    
+    /*
+        login helper function
     */
     func loginUser(_ username:String, passsword password:String){
         NSLog("server time out: \(username)")
@@ -282,49 +333,23 @@ class TweetsTableViewController: UITableViewController {
             "action" : "login"
         ]
         
-        Alamofire.request(urlString, method: .post, parameters: parameters)
-            .responseJSON(completionHandler:  {response in
-            switch(response.result) {
-            case .success(let JSON):
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                let service = appDelegate.kWazzuTwitterPassword
-                print(JSON)
-                // save username
-                // save password and session_token in keychain
-                // enable "add tweet" button
-            // change title of controller to show username, etc...
-                //SSKeychain.setPassword(password, forService: service, account: username)
-            case .failure(let error):
-                print(error)
-                break
-                // inform user of error
-            }})
+        Alamofire.request(urlString, method:.post, parameters:parameters)
+            .responseJSON(completionHandler: { response in
+                switch(response.result){
+                case .success(let JSON):
+                    break
+                case .failure(let error):
+                    break
+                default: break
+                }
+            })
     }
-    /*********************************************************** Login helper function ********************************************/
-    
-    /*
-     let alertController = UIAlertController(title: "Login", message: "Please Log in", preferredStyle: .alert)
-     alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
-     let usernameTextField = alertController.textFields![0]
-     let passwordTextField = alertController.textFields![1]
-     // ... check for empty textfields
-     if let username = usernameTextField.text {
-     if let password = passwordTextField.text {
-     //self.loginUser(usernameTextField.text!, password: passwordTextField.text!)
-     self.loginUser(username, passsword: password)
-     }
-     }
-     }))
-     alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-     
-     alertController.addTextField { (textField : UITextField) -> Void in
-     textField.placeholder = "Username"
-     }
-     alertController.addTextField { (textField : UITextField) -> Void in
-     textField.isSecureTextEntry = true
-     textField.placeholder = "Password"
-     }
-     
-     self.present(alertController, animated: true, completion: nil)
-     */
+    /************************************************ Login helper function ************************************/
+
 }
+
+
+
+
+
+
