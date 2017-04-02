@@ -224,19 +224,6 @@ class TweetsTableViewController: UITableViewController {
         alertController.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
 
             let alertC = UIAlertController(title: "Register", message: "Please chose a username & paswword", preferredStyle: .alert)
-            alertC.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
-                let usernameTextField = alertC.textFields![0]
-                let passwordTextField = alertC.textFields![1]
-                
-                // ... check for empty textfields
-                if let username = usernameTextField.text {
-                    if let password = passwordTextField.text {
-                        self.registerUser(username, passsword: password)
-                    }
-                }
-            }))
-            
-            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             
             alertC.addTextField { (textField : UITextField) -> Void in
                 textField.placeholder = "Username"
@@ -245,6 +232,20 @@ class TweetsTableViewController: UITableViewController {
                 textField.isSecureTextEntry = true
                 textField.placeholder = "Password"
             }
+            
+            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            alertC.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
+                let usernameTextField = alertC.textFields![0]
+                let passwordTextField = alertC.textFields![1]
+                
+                // ... check for empty textfields
+                if let username = usernameTextField.text {
+                    if let password = passwordTextField.text {
+                        self.registerUser(username, password: password)
+                    }
+                }
+            }))
             
             self.present(alertC, animated: true, completion: nil)
         }))
@@ -253,9 +254,6 @@ class TweetsTableViewController: UITableViewController {
         alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
             
             let alertC = UIAlertController(title: "Login", message: "Please login", preferredStyle: .alert)
-            alertC.addAction(UIAlertAction(title: "Login", style: .default, handler: nil))
-            
-            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             
             alertC.addTextField { (textField : UITextField) -> Void in
                 textField.placeholder = "Username"
@@ -265,12 +263,50 @@ class TweetsTableViewController: UITableViewController {
                 textField.placeholder = "Password"
             }
             
+            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            alertC.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
+                let usernameTextField = alertC.textFields![0]
+                let passwordTextField = alertC.textFields![1]
+                
+                // ... check for empty textfields
+                if let username = usernameTextField.text {
+                    if let password = passwordTextField.text {
+                        self.loginUser(username, password: password)
+                    }
+                }
+            }))
+            
             self.present(alertC, animated: true, completion: nil)
         }))
         
         // Logout user alert
-        alertController.addAction(UIAlertAction(title: "Logout", style: .default, handler: { (UIAlertAction) -> Void in
-            //XXX add handler code
+        alertController.addAction(UIAlertAction(title: "Logout", style: .default, handler: { _ in
+            
+            let alertC = UIAlertController(title: "Logout", message: "Please logout", preferredStyle: .alert)
+            
+            alertC.addTextField { (textField : UITextField) -> Void in
+                textField.placeholder = "Username"
+            }
+            alertC.addTextField { (textField : UITextField) -> Void in
+                textField.isSecureTextEntry = true
+                textField.placeholder = "Password"
+            }
+            
+            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            
+            alertC.addAction(UIAlertAction(title: "Logout", style: .default, handler: { _ in
+                let usernameTextField = alertC.textFields![0]
+                let passwordTextField = alertC.textFields![1]
+                
+                // ... check for empty textfields
+                if let username = usernameTextField.text {
+                    if let password = passwordTextField.text {
+                        self.logoutUser(username, password: password)
+                    }
+                }
+            }))
+            self.present(alertC, animated: true, completion: nil)
         }))
         
         // Reset user password
@@ -280,12 +316,12 @@ class TweetsTableViewController: UITableViewController {
         
         self.present(alertController, animated: true, completion: nil)
     }
-    /****************************************** End of Menu alert view ***************************************/
+
     
     /*
         Register helper function.
     */
-    func registerUser(_ username:String, passsword password:String){
+    func registerUser(_ username:String, password:String){
         NSLog("server time out: \(username)")
         NSLog("server time out: \(password)")
         
@@ -305,24 +341,23 @@ class TweetsTableViewController: UITableViewController {
                 appDelegate.session_token = dict["session_token"] as! String
                 print(appDelegate.session_token)
                 self.navigationController?.title = appDelegate.username
+                appDelegate.enableAddTweet = true
                 // save username
                 // save password and session_token in keychain
                 // enable "add tweet" button
                 // change title of controller to show username, etc...
-                //SSKeychain.setPassword(password, forService: service, account: username)
             case .failure(let error):
                 print(error)
                 break
                 // inform user of error
             }})
     }
-    /*************************************** End of register helper function *********************************/
     
     
     /*
         login helper function
     */
-    func loginUser(_ username:String, passsword password:String){
+    func loginUser(_ username:String, password:String){
         NSLog("server time out: \(username)")
         NSLog("server time out: \(password)")
         
@@ -337,15 +372,65 @@ class TweetsTableViewController: UITableViewController {
             .responseJSON(completionHandler: { response in
                 switch(response.result){
                 case .success(let JSON):
-                    break
+                    let dict = JSON as! [String : AnyObject]
+                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                    appDelegate.username = username
+                    appDelegate.session_token = dict["session_token"] as! String
+                    print(appDelegate.session_token)
+                    appDelegate.enableAddTweet = true
+                    //SSKeychain.setPassword(password, forService: service, account: username)
                 case .failure(let error):
-                    break
-                default: break
+                    print(error)
                 }
             })
     }
-    /************************************************ Login helper function ************************************/
+    
 
+    /*
+        Logout user help function
+    */
+    func logoutUser(_ username:String, password:String){
+        NSLog("server time out: \(username)")
+        NSLog("server time out: \(password)")
+        
+        let urlString = kBaseURLString + "login.cgi"
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let parameters = [
+            "username" : username,
+            "password" : password,
+            "action"   : "logout"
+        ]
+        
+        Alamofire.request(urlString, method: .post, parameters:parameters)
+            .responseJSON(completionHandler: { response in
+                switch(response.result){
+                case .success(let JSON):
+                    let data = JSON as! [String : AnyObject]
+                    let session_token = data["session_token"] as! Int
+                    
+                    if session_token == 0 {
+                        appDelegate.username = ""
+                        appDelegate.session_token = ""
+                    }
+                    print(session_token)
+                case .failure(let error):
+                    print(error)
+                    break
+                }
+            })
+    }
+    
+    
+    /*
+        Display error returnned from server
+    */
+    func displayErrorMessageAlert(error : String) {
+        let alertController = UIAlertController(title: "Error message", message: error, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: "Okay", style: .cancel, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
 }
 
 

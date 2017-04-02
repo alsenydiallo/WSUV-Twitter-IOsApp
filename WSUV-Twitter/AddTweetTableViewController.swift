@@ -14,26 +14,37 @@ class AddTweetTableViewController: UITableViewController {
     @IBOutlet weak var textViewField: UITextView!
     
     @IBAction func done(_ sender: UIBarButtonItem) {
-        //let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let tweet = textViewField.text{
-            let parameters = [
-                "username" : "diko",
-                "session_token": ""
-            ]
-            
-            Alamofire.request(kBaseURLString + "/login.cgi", method:.post, parameters:parameters).responseJSON{ response in
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        
+        if appDelegate.enableAddTweet == true {
+            if let tweet = textViewField.text{
                 
-                switch(response.result){
-                case .success(let JSON):
-                    print(JSON)
-                    break
-                case .failure(let error):
-                    print(error)
+                let parameters = [
+                    "username" : appDelegate.username,
+                    "session_token": appDelegate.session_token,
+                    "tweet" : tweet
+                ]
+                
+                Alamofire.request(kBaseURLString + "/add-tweet.cgi", method:.post, parameters:parameters)
+                    .responseJSON{ response in
+                        
+                        switch(response.result){
+                        case .success(let JSON):
+                            let data = JSON as! [String : AnyObject]
+                            print(data["tweet"] as! String)
+                            break
+                        case .failure(let error):
+                            print(error)
+                        }
                 }
+                
             }
-            
+            self.dismiss(animated: true, completion: nil)
+        }// need to loggin first before adding tweet
+        else {
+            self.dismiss(animated: true, completion: nil)
+            print("Error need to login first before adding a tweet")
         }
-        self.dismiss(animated: true, completion: nil)
     }
     
     @IBAction func cancel(_ sender: UIBarButtonItem) {

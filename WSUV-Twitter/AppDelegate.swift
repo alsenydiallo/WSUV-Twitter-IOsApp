@@ -21,6 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let kWazzuTwitterPassword = "WazzuTwitterPassword" // KeyChain service
     var session_token = ""
     var username = ""
+    var enableAddTweet = false 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
