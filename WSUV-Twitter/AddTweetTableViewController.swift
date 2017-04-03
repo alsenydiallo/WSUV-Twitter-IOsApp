@@ -17,12 +17,12 @@ class AddTweetTableViewController: UITableViewController {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         
         if appDelegate.enableAddTweet == true {
-            if let tweet = textViewField.text{
+            if let tweet_text = textViewField.text{
                 
                 let parameters = [
                     "username" : appDelegate.username,
                     "session_token": appDelegate.session_token,
-                    "tweet" : tweet
+                    "tweet" : tweet_text
                 ]
                 
                 Alamofire.request(kBaseURLString + "/add-tweet.cgi", method:.post, parameters:parameters)
@@ -30,25 +30,52 @@ class AddTweetTableViewController: UITableViewController {
                         
                         switch(response.result){
                         case .success(let JSON):
+                            self.textViewField.resignFirstResponder()
                             let data = JSON as! [String : AnyObject]
                             print(data["tweet"] as! String)
-                            break
+                            self.dismiss(animated: true, completion: {
+                                NSLog("dissmissed add view controller")
+                                NotificationCenter.default.post(name: kAddTweetNotification, object: nil)
+                            })
                         case .failure(let error):
-                            print(error)
+                            if let httpStatusCode = response.response?.statusCode {
+                                switch(httpStatusCode) {
+                                case 404:
+                                    self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                                case 500:
+                                    self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                                default:
+                                    self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                                }
+                            }
+                            
                         }
                 }
                 
             }
-            self.dismiss(animated: true, completion: nil)
+            //self.dismiss(animated: true, completion: nil)
         }// need to loggin first before adding tweet
         else {
-            self.dismiss(animated: true, completion: nil)
-            print("Error need to login first before adding a tweet")
+            self.displayErrorMessageAlert(error: "Error, you need to login first before adding a tweet")
+            //self.dismiss(animated: true, completion: nil)
         }
     }
     
     @IBAction func cancel(_ sender: UIBarButtonItem) {
-        self.dismiss(animated: true, completion: nil)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if appDelegate.enableAddTweet == true {
+            if !textViewField.text.isEmpty {
+                let alertC = UIAlertController(title: "Discard changes", message: "Would you like to discard all changes ?" , preferredStyle: .alert)
+                alertC.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: {_ in
+                    self.dismiss(animated: true, completion: nil)
+                }))
+                alertC.addAction(UIAlertAction(title: "NO", style: .cancel, handler: nil))
+                self.present(alertC, animated: true, completion: nil)
+            }
+        }
+        else{
+            self.dismiss(animated: true, completion: nil)
+        }
     }
     
     
@@ -70,5 +97,12 @@ class AddTweetTableViewController: UITableViewController {
      // Pass the selected object to the new view controller.
      }
      */
+    
+    func displayErrorMessageAlert(error : String) {
+        let alertController = UIAlertController(title: "Error message", message: error, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: "Okay", style: .cancel, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
+    }
 
 }

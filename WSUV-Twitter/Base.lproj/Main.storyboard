@@ -52,6 +52,9 @@
                             <action selector="refreshTweets:" destination="009-7i-4Wd" eventType="valueChanged" id="QoA-gu-c6O"/>
                         </connections>
                     </refreshControl>
+                    <connections>
+                        <outlet property="addTweetButton" destination="cMx-W5-VD4" id="sd4-YX-Z67"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SB6-OO-LPR" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -75,11 +78,10 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="151.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" keyboardDismissMode="onDrag" translatesAutoresizingMaskIntoConstraints="NO" id="cvz-f5-jH5">
+                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" keyboardDismissMode="onDrag" text="Hi, this is a test !!" translatesAutoresizingMaskIntoConstraints="NO" id="cvz-f5-jH5">
                                                     <rect key="frame" x="0.0" y="0.0" width="375" height="152"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation </string>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="done"/>
                                                 </textView>

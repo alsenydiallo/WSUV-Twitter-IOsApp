@@ -11,6 +11,7 @@ import Alamofire
 
 class TweetsTableViewController: UITableViewController {
  
+    @IBOutlet weak var addTweetButton: UIBarButtonItem!
     /******************* Text attributes *******************************/
     lazy var tweetDateFormatter : DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -67,7 +68,13 @@ class TweetsTableViewController: UITableViewController {
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
-        /*NotificationCenter.default.addObserver(
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if appDelegate.session_token == "" {
+            addTweetButton.isEnabled = false
+        }
+        
+        NotificationCenter.default.addObserver(
             forName: kAddTweetNotification,
             object: nil,
             queue: nil) { (note : Notification) -> Void in
@@ -75,7 +82,12 @@ class TweetsTableViewController: UITableViewController {
                     self.refreshControl!.beginRefreshing()
                     self.refreshTweets(self)
                 }
-        }*/
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func didReceiveMemoryWarning() {
@@ -118,25 +130,25 @@ class TweetsTableViewController: UITableViewController {
     }
     
 
-    /*
+    
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         // Return false if you do not want the specified item to be editable.
-        return true
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.username == appDelegate.tweets[indexPath.row].username
     }
-    */
+    
 
-    /*
+    
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             // Delete the row from the data source
+            self.deleteTweet(index: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+        }
     }
-    */
+    
 
     /*
     // MARK: - Navigation
@@ -152,7 +164,7 @@ class TweetsTableViewController: UITableViewController {
     /*
         Refresh action inplementation. refresh is trigered on pull down gesture
      */
-    @IBAction func refreshTweets(_ sender: UIRefreshControl) {
+    @IBAction func refreshTweets(_ sender: AnyObject) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -189,32 +201,24 @@ class TweetsTableViewController: UITableViewController {
                 self.refreshControl?.endRefreshing()
                 
             case .failure(let error):
-                let message : String
                 if let httpStatusCode = response.response?.statusCode {
                     switch(httpStatusCode) {
                     case 404:
-                        NSLog("404 invalid request")
+                        self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
                     case 500:
-                        message = "Server error (my bad)"
-                        NSLog("request failled: \(message)")
+                        self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
                     default:
-                        NSLog("Error occured")
-                        break
+                        self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
                     }
-                    
-                } else { // probably network or server timeout
-                    message = error.localizedDescription
                 }
-                // ... display alert with message ..
                 self.refreshControl?.endRefreshing()
             }
         }
     }
-    /******************************************** END of RefreshAction ************************************/
     
     /*
         Manage account menu
-     */
+    */
     @IBAction func manageAccount(_ sender: UIBarButtonItem) {
         let alertController = UIAlertController(title: "Manage Account", message: nil, preferredStyle: .actionSheet)
         
@@ -276,37 +280,23 @@ class TweetsTableViewController: UITableViewController {
                     }
                 }
             }))
-            
+
             self.present(alertC, animated: true, completion: nil)
         }))
         
         // Logout user alert
         alertController.addAction(UIAlertAction(title: "Logout", style: .default, handler: { _ in
-            
-            let alertC = UIAlertController(title: "Logout", message: "Please logout", preferredStyle: .alert)
-            
-            alertC.addTextField { (textField : UITextField) -> Void in
-                textField.placeholder = "Username"
-            }
-            alertC.addTextField { (textField : UITextField) -> Void in
-                textField.isSecureTextEntry = true
-                textField.placeholder = "Password"
-            }
-            
-            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-            
-            alertC.addAction(UIAlertAction(title: "Logout", style: .default, handler: { _ in
-                let usernameTextField = alertC.textFields![0]
-                let passwordTextField = alertC.textFields![1]
-                
-                // ... check for empty textfields
-                if let username = usernameTextField.text {
-                    if let password = passwordTextField.text {
-                        self.logoutUser(username, password: password)
-                    }
+            let alertC = UIAlertController(title: "Logout", message: "You successfully logged out", preferredStyle: .alert)
+            alertC.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            if appDelegate.session_token != "" {
+                if self.logoutUser(appDelegate.username, password: appDelegate.password) == true{
+                    self.present(alertC, animated: true, completion: nil)
                 }
-            }))
-            self.present(alertC, animated: true, completion: nil)
+            }
+            else {
+                self.displayErrorMessageAlert(error: "There is user loggin for this session !!")
+            }
         }))
         
         // Reset user password
@@ -322,13 +312,11 @@ class TweetsTableViewController: UITableViewController {
         Register helper function.
     */
     func registerUser(_ username:String, password:String){
-        NSLog("server time out: \(username)")
-        NSLog("server time out: \(password)")
         
         let urlString = kBaseURLString + "/register.cgi"
         let parameters = [
-            "username" : username, // username and password
-            "password" : password, // obtained from user
+            "username" : username,
+            "password" : password,
         ]
         
         Alamofire.request(urlString, method: .post, parameters: parameters)
@@ -347,9 +335,16 @@ class TweetsTableViewController: UITableViewController {
                 // enable "add tweet" button
                 // change title of controller to show username, etc...
             case .failure(let error):
-                print(error)
-                break
-                // inform user of error
+                if let httpStatusCode = response.response?.statusCode {
+                    switch(httpStatusCode) {
+                    case 404:
+                        self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                    case 500:
+                        self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                    default:
+                        self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                    }
+                }
             }})
     }
     
@@ -358,13 +353,11 @@ class TweetsTableViewController: UITableViewController {
         login helper function
     */
     func loginUser(_ username:String, password:String){
-        NSLog("server time out: \(username)")
-        NSLog("server time out: \(password)")
-        
+
         let urlString = kBaseURLString + "/login.cgi"
         let parameters = [
-            "username" : username, // username and password
-            "password" : password, // obtained from user
+            "username" : username,
+            "password" : password,
             "action" : "login"
         ]
         
@@ -376,23 +369,33 @@ class TweetsTableViewController: UITableViewController {
                     let appDelegate = UIApplication.shared.delegate as! AppDelegate
                     appDelegate.username = username
                     appDelegate.session_token = dict["session_token"] as! String
+                    print(appDelegate.username)
                     print(appDelegate.session_token)
                     appDelegate.enableAddTweet = true
+                    self.title = appDelegate.username
                     //SSKeychain.setPassword(password, forService: service, account: username)
                 case .failure(let error):
-                    print(error)
+                    if let httpStatusCode = response.response?.statusCode {
+                        switch(httpStatusCode) {
+                        case 404:
+                            self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                        case 500:
+                            self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                        default:
+                            self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                        }
+                    }
                 }
             })
     }
     
 
     /*
-        Logout user help function
+        Logout user helper function
     */
-    func logoutUser(_ username:String, password:String){
-        NSLog("server time out: \(username)")
-        NSLog("server time out: \(password)")
+    func logoutUser(_ username:String, password:String) -> Bool {
         
+        var flag = false
         let urlString = kBaseURLString + "login.cgi"
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let parameters = [
@@ -409,17 +412,66 @@ class TweetsTableViewController: UITableViewController {
                     let session_token = data["session_token"] as! Int
                     
                     if session_token == 0 {
+                        self.title = "Tweets"
+                        flag = true
+                        appDelegate.password = ""
                         appDelegate.username = ""
                         appDelegate.session_token = ""
                     }
                     print(session_token)
                 case .failure(let error):
-                    print(error)
-                    break
+                    if let httpStatusCode = response.response?.statusCode {
+                        switch(httpStatusCode) {
+                        case 404:
+                            self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                        case 500:
+                            self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                        default:
+                            self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                        }
+                    }
+                }
+            })
+        return flag
+    }
+    
+    /*
+     Delete tweet user helper function
+     */
+    func deleteTweet(index:Int){
+        
+        let urlString = kBaseURLString + "del-tweet.cgi"
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let parameters = [
+            "username" : appDelegate.username,
+            "session_token" : appDelegate.session_token,
+            "tweet_id"   : appDelegate.tweets[index].tweet_id
+        ] as [String : Any]
+        
+        Alamofire.request(urlString, method: .post, parameters:parameters)
+            .responseJSON(completionHandler: { response in
+                switch(response.result){
+                case .success(let JSON):
+                    let data = JSON as! [String:AnyObject]
+                    if data["isdeleted"] as! Int == 1{
+                        appDelegate.tweets.remove(at: index)
+                       // self.tableView.reloadData()
+                    }
+                    
+                case .failure(let error):
+                    if let httpStatusCode = response.response?.statusCode {
+                        switch(httpStatusCode) {
+                        case 404:
+                            self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                        case 500:
+                            self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                        default:
+                            self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                        }
+                    }
                 }
             })
     }
-    
     
     /*
         Display error returnned from server
