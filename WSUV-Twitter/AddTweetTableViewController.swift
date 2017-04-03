@@ -53,12 +53,7 @@ class AddTweetTableViewController: UITableViewController {
                 }
                 
             }
-            //self.dismiss(animated: true, completion: nil)
         }// need to loggin first before adding tweet
-        else {
-            self.displayErrorMessageAlert(error: "Error, you need to login first before adding a tweet")
-            //self.dismiss(animated: true, completion: nil)
-        }
     }
     
     @IBAction func cancel(_ sender: UIBarButtonItem) {

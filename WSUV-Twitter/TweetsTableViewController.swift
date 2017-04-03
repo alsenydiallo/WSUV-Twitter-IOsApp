@@ -12,6 +12,10 @@ import Alamofire
 class TweetsTableViewController: UITableViewController {
  
     @IBOutlet weak var addTweetButton: UIBarButtonItem!
+    var enableLogin = true
+    var enableLogout = false
+    var enableRegister = true
+    
     /******************* Text attributes *******************************/
     lazy var tweetDateFormatter : DateFormatter = {
         let dateFormatter = DateFormatter()
@@ -68,9 +72,10 @@ class TweetsTableViewController: UITableViewController {
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+
+        self.refreshTweets(self)
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.session_token == "" {
+        if self.enableLogin == true {
             addTweetButton.isEnabled = false
         }
         
@@ -172,12 +177,9 @@ class TweetsTableViewController: UITableViewController {
         let lastTweetDate = appDelegate.lastTweetDate()
         let dateStr = dateFormatter.string(from: lastTweetDate as Date)
         
-        // format date string from latest stored tweet...
         Alamofire.request(kBaseURLString + "/get-tweets.cgi", method: .get, parameters: ["date": dateStr]).responseJSON{ response in
-            
             switch(response.result) {
             case .success(let JSON):
-                NSLog("request successfull")
                 let dict = JSON as! [String : AnyObject]
                 let tweets = dict["tweets"] as! [[String : AnyObject]]
                 
@@ -187,9 +189,7 @@ class TweetsTableViewController: UITableViewController {
                         let formatter = DateFormatter()
                         formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
                         let someDateTime = formatter.date(from: tweet["time_stamp"] as! String)
-                    
                         let t = Tweet(tweet_id:tweet["tweet_id"] as! Int, username:tweet["username"] as! String, isDeleted:isdeleted, tweet:tweet["tweet"] as! NSString, date:someDateTime!)
-                        
                         appDelegate.tweets.append(t)
                     }
                     else{
@@ -200,15 +200,17 @@ class TweetsTableViewController: UITableViewController {
                 self.tableView.reloadData() // force table-view to be updated
                 self.refreshControl?.endRefreshing()
                 
-            case .failure(let error):
+            case .failure(_):
                 if let httpStatusCode = response.response?.statusCode {
                     switch(httpStatusCode) {
                     case 404:
-                        self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                        self.displayErrorMessageAlert(error: "404 invalid request.")
                     case 500:
-                        self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                        self.displayErrorMessageAlert(error: "Internal server error.")
+                    case 503:
+                        self.displayErrorMessageAlert(error: "unable to connect to internal database.")
                     default:
-                        self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                        break
                     }
                 }
                 self.refreshControl?.endRefreshing()
@@ -221,83 +223,102 @@ class TweetsTableViewController: UITableViewController {
     */
     @IBAction func manageAccount(_ sender: UIBarButtonItem) {
         let alertController = UIAlertController(title: "Manage Account", message: nil, preferredStyle: .actionSheet)
-        
+    
         alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         
         // Register user alert
-        alertController.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
-
-            let alertC = UIAlertController(title: "Register", message: "Please chose a username & paswword", preferredStyle: .alert)
-            
-            alertC.addTextField { (textField : UITextField) -> Void in
-                textField.placeholder = "Username"
-            }
-            alertC.addTextField { (textField : UITextField) -> Void in
-                textField.isSecureTextEntry = true
-                textField.placeholder = "Password"
-            }
-            
-            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-            
-            alertC.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
-                let usernameTextField = alertC.textFields![0]
-                let passwordTextField = alertC.textFields![1]
+        if self.enableRegister == true {
+            alertController.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
                 
-                // ... check for empty textfields
-                if let username = usernameTextField.text {
-                    if let password = passwordTextField.text {
-                        self.registerUser(username, password: password)
-                    }
+                let alertC = UIAlertController(title: "Register", message: "Please chose a username & paswword", preferredStyle: .alert)
+                
+                alertC.addTextField { (textField : UITextField) -> Void in
+                    textField.placeholder = "Username"
                 }
+                alertC.addTextField { (textField : UITextField) -> Void in
+                    textField.isSecureTextEntry = true
+                    textField.placeholder = "Password"
+                }
+                
+                alertC.addTextField { (textField : UITextField) -> Void in
+                    textField.isSecureTextEntry = true
+                    textField.placeholder = "Re-enter password"
+                }
+                
+                alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                
+                alertC.addAction(UIAlertAction(title: "Register", style: .default, handler: { _ in
+                    let usernameTextField = alertC.textFields![0]
+                    let passwordTextField = alertC.textFields![1]
+                    let passwordTextField2 = alertC.textFields![2]
+                    
+                    // ... check for empty textfields
+                    if let username = usernameTextField.text {
+                        if let password = passwordTextField.text {
+                            if let password2 = passwordTextField2.text {
+                                if password == password2 {
+                                    self.registerUser(username, password: password)
+                                }
+                                else{
+                                    self.displayErrorMessageAlert(error: "The password you entered does not match !")
+                                }
+                            }
+                        }
+                    }
+                }))
+                
+                self.present(alertC, animated: true, completion: nil)
             }))
-            
-            self.present(alertC, animated: true, completion: nil)
-        }))
+        }
         
         // Login user alert
-        alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
-            
-            let alertC = UIAlertController(title: "Login", message: "Please login", preferredStyle: .alert)
-            
-            alertC.addTextField { (textField : UITextField) -> Void in
-                textField.placeholder = "Username"
-            }
-            alertC.addTextField { (textField : UITextField) -> Void in
-                textField.isSecureTextEntry = true
-                textField.placeholder = "Password"
-            }
-            
-            alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-            
-            alertC.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
-                let usernameTextField = alertC.textFields![0]
-                let passwordTextField = alertC.textFields![1]
+        if self.enableLogin == true {
+            alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
                 
-                // ... check for empty textfields
-                if let username = usernameTextField.text {
-                    if let password = passwordTextField.text {
-                        self.loginUser(username, password: password)
-                    }
+                let alertC = UIAlertController(title: "Login", message: "Please login", preferredStyle: .alert)
+                
+                alertC.addTextField { (textField : UITextField) -> Void in
+                    textField.placeholder = "Username"
                 }
+                alertC.addTextField { (textField : UITextField) -> Void in
+                    textField.isSecureTextEntry = true
+                    textField.placeholder = "Password"
+                }
+                
+                alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                
+                alertC.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
+                    let usernameTextField = alertC.textFields![0]
+                    let passwordTextField = alertC.textFields![1]
+                    
+                    // ... check for empty textfields
+                    if let username = usernameTextField.text {
+                        if let password = passwordTextField.text {
+                            self.loginUser(username, password: password)
+                        }
+                    }
+                }))
+                
+                self.present(alertC, animated: true, completion: nil)
             }))
-
-            self.present(alertC, animated: true, completion: nil)
-        }))
+        }
         
         // Logout user alert
-        alertController.addAction(UIAlertAction(title: "Logout", style: .default, handler: { _ in
-            let alertC = UIAlertController(title: "Logout", message: "You successfully logged out", preferredStyle: .alert)
-            alertC.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            if appDelegate.session_token != "" {
-                if self.logoutUser(appDelegate.username, password: appDelegate.password) == true{
-                    self.present(alertC, animated: true, completion: nil)
+        if self.enableLogout == true {
+            alertController.addAction(UIAlertAction(title: "Logout", style: .default, handler: { _ in
+                let alertC = UIAlertController(title: "Logout", message: "You successfully logged out", preferredStyle: .alert)
+                alertC.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                if appDelegate.session_token != "" {
+                    if self.logoutUser(appDelegate.username, password: appDelegate.password) == true{
+                        self.present(alertC, animated: true, completion: nil)
+                    }
                 }
-            }
-            else {
-                self.displayErrorMessageAlert(error: "There is user loggin for this session !!")
-            }
-        }))
+                else {
+                    self.displayErrorMessageAlert(error: "There is user loggin for this session !!")
+                }
+            }))
+        }
         
         // Reset user password
         alertController.addAction(UIAlertAction(title: "Reset Password", style: .default, handler: { (UIAlertAction) -> Void in
@@ -327,22 +348,26 @@ class TweetsTableViewController: UITableViewController {
                 let dict = JSON as! [String : AnyObject]
                 appDelegate.username = username
                 appDelegate.session_token = dict["session_token"] as! String
-                print(appDelegate.session_token)
-                self.navigationController?.title = appDelegate.username
                 appDelegate.enableAddTweet = true
-                // save username
+                self.enableLogout = true
+                self.enableRegister = false
+                self.enableLogin = false
+                self.title = appDelegate.username
                 // save password and session_token in keychain
-                // enable "add tweet" button
-                // change title of controller to show username, etc...
-            case .failure(let error):
+
+            case .failure( _):
                 if let httpStatusCode = response.response?.statusCode {
                     switch(httpStatusCode) {
                     case 404:
-                        self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                        self.displayErrorMessageAlert(error: "Invalid request.")
                     case 500:
-                        self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                        self.displayErrorMessageAlert(error: "Internal server error.")
+                    case 409:
+                        self.displayErrorMessageAlert(error: "Conflict, username already exists.")
+                    case 400:
+                        self.displayErrorMessageAlert(error: "Bad request, both username and password not provided.")
                     default:
-                        self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                        self.displayErrorMessageAlert(error: "Error occured.")
                     }
                 }
             }})
@@ -369,20 +394,25 @@ class TweetsTableViewController: UITableViewController {
                     let appDelegate = UIApplication.shared.delegate as! AppDelegate
                     appDelegate.username = username
                     appDelegate.session_token = dict["session_token"] as! String
-                    print(appDelegate.username)
-                    print(appDelegate.session_token)
                     appDelegate.enableAddTweet = true
+                    self.enableLogout = true
+                    self.enableRegister = false
+                    self.enableLogin = false
                     self.title = appDelegate.username
                     //SSKeychain.setPassword(password, forService: service, account: username)
-                case .failure(let error):
+                case .failure( _):
                     if let httpStatusCode = response.response?.statusCode {
                         switch(httpStatusCode) {
                         case 404:
-                            self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                            self.displayErrorMessageAlert(error: "Not found, No such user.")
+                        case 401:
+                            self.displayErrorMessageAlert(error: "Unauthorized.)")
                         case 500:
-                            self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                            self.displayErrorMessageAlert(error: "Server error.)")
+                        case 400:
+                            self.displayErrorMessageAlert(error: "Bad request, both username and password not provided.)")
                         default:
-                            self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                            self.displayErrorMessageAlert(error: "An error occured.")
                         }
                     }
                 }
@@ -412,22 +442,29 @@ class TweetsTableViewController: UITableViewController {
                     let session_token = data["session_token"] as! Int
                     
                     if session_token == 0 {
-                        self.title = "Tweets"
                         flag = true
                         appDelegate.password = ""
                         appDelegate.username = ""
                         appDelegate.session_token = ""
+                        self.enableLogin = true
+                        self.enableRegister = true
+                        self.enableLogout = false
+                        self.title = "Tweets"
                     }
                     print(session_token)
-                case .failure(let error):
+                case .failure( _):
                     if let httpStatusCode = response.response?.statusCode {
                         switch(httpStatusCode) {
                         case 404:
-                            self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                            self.displayErrorMessageAlert(error: "Not found, No such user.")
+                        case 401:
+                            self.displayErrorMessageAlert(error: "Unauthorized.")
                         case 500:
-                            self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                            self.displayErrorMessageAlert(error: "Server error.")
+                        case 400:
+                            self.displayErrorMessageAlert(error: "Bad request, both username and password not provided.")
                         default:
-                            self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                            self.displayErrorMessageAlert(error: "Error occured.")
                         }
                     }
                 }
@@ -458,15 +495,21 @@ class TweetsTableViewController: UITableViewController {
                        // self.tableView.reloadData()
                     }
                     
-                case .failure(let error):
+                case .failure(_):
                     if let httpStatusCode = response.response?.statusCode {
                         switch(httpStatusCode) {
                         case 404:
-                            self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                            self.displayErrorMessageAlert(error: "Not Found : no such user or no such tweet.")
                         case 500:
-                            self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                            self.displayErrorMessageAlert(error: "Internal server error.")
+                        case 401:
+                            self.displayErrorMessageAlert(error: "Unauthorized.")
+                        case 403:
+                            self.displayErrorMessageAlert(error: "Forbidded : not the user's tweet.")
+                        case 400:
+                            self.displayErrorMessageAlert(error: "Bad Request : all parameters not provided.")
                         default:
-                            self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                            self.displayErrorMessageAlert(error: "Error occured.")
                         }
                     }
                 }
