@@ -11,34 +11,40 @@ import Alamofire
 
 let kBaseURLString = "https://ezekiel.encs.vancouver.wsu.edu/~cs458/cgi-bin"
 let kAddTweetNotification = Notification.Name("kAddTweetNotification")
+let kWazzuTwitterPassword = "WazzuTwitterPassword" // KeyChain service
 
+func sandboxArchivePath() -> String {
+    let dir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! as NSString
+    return dir.appendingPathComponent("wsuv-twitter")
+}
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     var tweets: [Tweet] = []
-    let kWazzuTwitterPassword = "WazzuTwitterPassword" // KeyChain service
+    
     var session_token = ""
     var username = ""
-    var enableAddTweet = false
-    var password = ""
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        let archiveName = sandboxArchivePath()
+        if FileManager.default.fileExists(atPath: archiveName){
+            tweets = NSKeyedUnarchiver.unarchiveObject(withFile: archiveName) as! [Tweet]
+            
+        }
         return true
     }
 
     func lastTweetDate() -> Date {
-        /*if tweets?.count == 0 {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
-            let someDateTime = formatter.date(from: "2016/10/08 22:31:12")
-            return someDateTime!
+        if tweets.isEmpty {
+            let oneYear = TimeInterval(60 * 60 * 24 * 365)
+            return Date(timeIntervalSinceNow: -oneYear)
         }
-        return Date()*/
-        let oneYear = TimeInterval(60 * 60 * 24 * 365)
-        return Date(timeIntervalSinceNow: -oneYear)
+        else{
+            return (tweets.first?.date)!
+        }
     }
     
     
@@ -50,6 +56,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        let archiveName = sandboxArchivePath()
+        NSKeyedArchiver.archiveRootObject(tweets, toFile: archiveName)
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {

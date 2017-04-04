@@ -12,21 +12,10 @@ import Alamofire
 
 class Tweet: NSObject, NSCoding {
     var tweet_id : Int
-    var username : String
     var isDeleted : Int
     var tweet : NSString
     var date : Date
-    
-    var password : NSString? = nil
-    var sessionKey : NSString? = nil
-    
-    /*override init() {
-        tweet_id = 0
-        username = String()
-        isDeleted = false
-        tweet = NSString()
-        date = Date()
-    }*/
+    var username : String
     
     init (tweet_id:Int, username:String, isDeleted:Int, tweet:NSString, date:Date){
         self.tweet_id = tweet_id
@@ -65,7 +54,7 @@ class Tweet: NSObject, NSCoding {
         aCoder.encode(username, forKey: "username")
         aCoder.encode(isDeleted, forKey: "isDeleted")
         aCoder.encode(tweet, forKey: "tweet")
-        aCoder.encode(date, forKey: "datae")
+        aCoder.encode(date, forKey: "date")
     }
     
 }

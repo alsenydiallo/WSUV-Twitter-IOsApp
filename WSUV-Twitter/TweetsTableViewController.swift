@@ -73,7 +73,8 @@ class TweetsTableViewController: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
 
-        self.refreshTweets(self)
+        //self.refreshTweets(self)
+        
         
         if self.enableLogin == true {
             addTweetButton.isEnabled = false
@@ -149,8 +150,50 @@ class TweetsTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             // Delete the row from the data source
-            self.deleteTweet(index: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
+            /*if self.deleteTweet(index: indexPath.row) == true{
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                tableView.deleteRows(at: [indexPath], with: .fade)
+                appDelegate.tweets.remove(at: indexPath.row)
+            }*/
+            
+            let urlString = kBaseURLString + "del-tweet.cgi"
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let parameters = [
+                "username" : appDelegate.username,
+                "session_token" : appDelegate.session_token,
+                "tweet_id"   : appDelegate.tweets[indexPath.row].tweet_id
+                ] as [String : Any]
+            
+            Alamofire.request(urlString, method: .post, parameters:parameters)
+                .responseJSON(completionHandler: { response in
+                    switch(response.result){
+                    case .success(let JSON):
+                        let data = JSON as! [String:AnyObject]
+                        if data["isdeleted"] as! Int == 1{
+                            tableView.deleteRows(at: [indexPath], with: .fade)
+                            appDelegate.tweets.remove(at: indexPath.row)
+                        }
+                        
+                    case .failure(_):
+                        if let httpStatusCode = response.response?.statusCode {
+                            //tableView.cellForRow(at: indexPath)?.setSelected(false, animated: true)
+                            switch(httpStatusCode) {
+                            case 404:
+                                self.displayErrorMessageAlert(error: "Not Found : no such user or no such tweet.")
+                            case 500:
+                                self.displayErrorMessageAlert(error: "Internal server error.")
+                            case 401:
+                                self.displayErrorMessageAlert(error: "Unauthorized.")
+                            case 403:
+                                self.displayErrorMessageAlert(error: "Forbidded : not the user's tweet.")
+                            case 400:
+                                self.displayErrorMessageAlert(error: "Bad Request : all parameters not provided.")
+                            default:
+                                self.displayErrorMessageAlert(error: "Error occured.")
+                            }
+                        }
+                    }
+                })
         }
     }
     
@@ -186,14 +229,16 @@ class TweetsTableViewController: UITableViewController {
                 for tweet in tweets {
                     let isdeleted = tweet["isdeleted"] as! Int
                     if isdeleted == 0 {
-                        let formatter = DateFormatter()
-                        formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
-                        let someDateTime = formatter.date(from: tweet["time_stamp"] as! String)
-                        let t = Tweet(tweet_id:tweet["tweet_id"] as! Int, username:tweet["username"] as! String, isDeleted:isdeleted, tweet:tweet["tweet"] as! NSString, date:someDateTime!)
+
+                    let date = dateFormatter.date(from: tweet["time_stamp"] as! String)
+                        let t = Tweet(tweet_id:tweet["tweet_id"] as! Int, username:tweet["username"] as! String, isDeleted:isdeleted, tweet:tweet["tweet"] as! NSString, date:date!)
                         appDelegate.tweets.append(t)
                     }
                     else{
                         //XXX implent delete tweet
+                        if !appDelegate.tweets.isEmpty{
+                            //let index = appDelegate.tweets.index(of: tweet)
+                        }
                     }
                 }
                 appDelegate.tweets.sort(by: {$0.date > $1.date})
@@ -309,8 +354,9 @@ class TweetsTableViewController: UITableViewController {
                 let alertC = UIAlertController(title: "Logout", message: "You successfully logged out", preferredStyle: .alert)
                 alertC.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let password = SSKeychain.password(forService: kWazzuTwitterPassword, account: appDelegate.username)
                 if appDelegate.session_token != "" {
-                    if self.logoutUser(appDelegate.username, password: appDelegate.password) == true{
+                    if self.logoutUser(appDelegate.username, password: password!) == true{
                         self.present(alertC, animated: true, completion: nil)
                     }
                 }
@@ -348,12 +394,12 @@ class TweetsTableViewController: UITableViewController {
                 let dict = JSON as! [String : AnyObject]
                 appDelegate.username = username
                 appDelegate.session_token = dict["session_token"] as! String
-                appDelegate.enableAddTweet = true
+                self.addTweetButton.isEnabled = true
                 self.enableLogout = true
                 self.enableRegister = false
                 self.enableLogin = false
                 self.title = appDelegate.username
-                // save password and session_token in keychain
+                SSKeychain.setPassword(password, forService: kWazzuTwitterPassword, account: username)
 
             case .failure( _):
                 if let httpStatusCode = response.response?.statusCode {
@@ -394,12 +440,12 @@ class TweetsTableViewController: UITableViewController {
                     let appDelegate = UIApplication.shared.delegate as! AppDelegate
                     appDelegate.username = username
                     appDelegate.session_token = dict["session_token"] as! String
-                    appDelegate.enableAddTweet = true
+                    self.addTweetButton.isEnabled = true
                     self.enableLogout = true
                     self.enableRegister = false
                     self.enableLogin = false
                     self.title = appDelegate.username
-                    //SSKeychain.setPassword(password, forService: service, account: username)
+                    SSKeychain.setPassword(password, forService: kWazzuTwitterPassword, account: username)
                 case .failure( _):
                     if let httpStatusCode = response.response?.statusCode {
                         switch(httpStatusCode) {
@@ -443,12 +489,13 @@ class TweetsTableViewController: UITableViewController {
                     
                     if session_token == 0 {
                         flag = true
-                        appDelegate.password = ""
+                        SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: username)
                         appDelegate.username = ""
                         appDelegate.session_token = ""
                         self.enableLogin = true
                         self.enableRegister = true
                         self.enableLogout = false
+                        self.addTweetButton.isEnabled = false
                         self.title = "Tweets"
                     }
                     print(session_token)
@@ -475,8 +522,8 @@ class TweetsTableViewController: UITableViewController {
     /*
      Delete tweet user helper function
      */
-    func deleteTweet(index:Int){
-        
+    func deleteTweet(index:Int) -> Bool {
+        var flag = false
         let urlString = kBaseURLString + "del-tweet.cgi"
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let parameters = [
@@ -491,8 +538,7 @@ class TweetsTableViewController: UITableViewController {
                 case .success(let JSON):
                     let data = JSON as! [String:AnyObject]
                     if data["isdeleted"] as! Int == 1{
-                        appDelegate.tweets.remove(at: index)
-                       // self.tableView.reloadData()
+                        flag = true
                     }
                     
                 case .failure(_):
@@ -514,6 +560,7 @@ class TweetsTableViewController: UITableViewController {
                     }
                 }
             })
+        return flag
     }
     
     /*
