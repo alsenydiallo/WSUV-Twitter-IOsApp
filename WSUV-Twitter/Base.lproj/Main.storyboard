@@ -131,9 +131,10 @@
         <scene sceneID="brX-KS-2rl">
             <objects>
                 <navigationController id="RcF-Hd-REV" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Spx-YQ-bZm">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="Spx-YQ-bZm">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <color key="barTintColor" red="0.56342875960000005" green="0.0042115012180000003" blue="0.1596885026" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </navigationBar>
                     <connections>
                         <segue destination="db6-JE-PyJ" kind="relationship" relationship="rootViewController" id="d7e-3S-NRx"/>
@@ -147,9 +148,10 @@
         <scene sceneID="Elc-mY-jvQ">
             <objects>
                 <navigationController id="vgS-oq-J5M" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="n1h-y8-iEY">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" misplaced="YES" id="n1h-y8-iEY">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <color key="barTintColor" red="0.56342875960000005" green="0.0042115012180000003" blue="0.1596885026" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </navigationBar>
                     <connections>
                         <segue destination="009-7i-4Wd" kind="relationship" relationship="rootViewController" id="qcH-dL-yv0"/>
