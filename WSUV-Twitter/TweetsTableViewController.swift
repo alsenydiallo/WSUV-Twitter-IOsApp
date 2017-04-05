@@ -73,7 +73,7 @@ class TweetsTableViewController: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
 
-        self.refreshTweets(self)
+        //self.refreshTweets(self)
         
         
         if self.enableLogin == true {
@@ -229,7 +229,10 @@ class TweetsTableViewController: UITableViewController {
                     else{
                         //XXX implent delete tweet
                         if !appDelegate.tweets.isEmpty{
-                            //let index = appDelegate.tweets.index(where: $0.tweet_id == tweet["tweet_id"] as! Int)
+                            let index = appDelegate.tweets.index(where: {$0.tweet_id == tweet["tweet_id"] as! Int})
+                            if index != nil{
+                                appDelegate.tweets.remove(at: index!)
+                            }
                         }
                     }
                 }
@@ -527,50 +530,6 @@ class TweetsTableViewController: UITableViewController {
         return flag
     }
     
-    /*
-     Delete tweet user helper function
- 
-    func deleteTweet(index:Int) -> Bool {
-        var flag = false
-        let urlString = kBaseURLString + "del-tweet.cgi"
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let parameters = [
-            "username" : appDelegate.username,
-            "session_token" : appDelegate.session_token,
-            "tweet_id"   : appDelegate.tweets[index].tweet_id
-        ] as [String : Any]
-        
-        Alamofire.request(urlString, method: .post, parameters:parameters)
-            .responseJSON(completionHandler: { response in
-                switch(response.result){
-                case .success(let JSON):
-                    let data = JSON as! [String:AnyObject]
-                    if data["isdeleted"] as! Int == 1{
-                        flag = true
-                    }
-                    
-                case .failure(_):
-                    if let httpStatusCode = response.response?.statusCode {
-                        switch(httpStatusCode) {
-                        case 404:
-                            self.displayErrorMessageAlert(error: "Not Found : no such user or no such tweet.")
-                        case 500:
-                            self.displayErrorMessageAlert(error: "Internal server error.")
-                        case 401:
-                            self.displayErrorMessageAlert(error: "Unauthorized.")
-                        case 403:
-                            self.displayErrorMessageAlert(error: "Forbidded : not the user's tweet.")
-                        case 400:
-                            self.displayErrorMessageAlert(error: "Bad Request : all parameters not provided.")
-                        default:
-                            self.displayErrorMessageAlert(error: "Error occured.")
-                        }
-                    }
-                }
-            })
-        return flag
-    }
-  */
     
     /*
         Display error returnned from server

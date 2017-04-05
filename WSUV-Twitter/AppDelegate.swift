@@ -8,6 +8,7 @@
 
 import UIKit
 import Alamofire
+import AlamofireNetworkActivityIndicator
 
 let kBaseURLString = "https://ezekiel.encs.vancouver.wsu.edu/~cs458/cgi-bin"
 let kAddTweetNotification = Notification.Name("kAddTweetNotification")
@@ -31,6 +32,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             tweets = NSKeyedUnarchiver.unarchiveObject(withFile: archiveName) as! [Tweet]
             
         }
+        NetworkActivityIndicatorManager.shared.isEnabled = true
+        NetworkActivityIndicatorManager.shared.startDelay = 1.0
+        NetworkActivityIndicatorManager.shared.completionDelay = 0.2
+        
         return true
     }
 
