@@ -119,7 +119,8 @@ class TweetsTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "tweet", for: indexPath)
 
         // Configure the cell...
-        let tweet = self.tweets[indexPath.row]
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let tweet = appDelegate.tweets[indexPath.row]
         
         cell.textLabel?.numberOfLines = 0 // multi-line label
         cell.textLabel?.attributedText = attributedStringForTweet(tweet)
@@ -141,26 +142,23 @@ class TweetsTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         // Return false if you do not want the specified item to be editable.
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        return appDelegate.username == appDelegate.tweets[indexPath.row].username
+        if let username = SSKeychain.password(forService: kWazzuTwitterPassword, account: "username") {
+            return username == appDelegate.tweets[indexPath.row].username
+        }
+        return false
     }
     
 
     
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        // delete tweet only supported if user is logged in
         if editingStyle == .delete {
-            // Delete the row from the data source
-            /*if self.deleteTweet(index: indexPath.row) == true{
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                tableView.deleteRows(at: [indexPath], with: .fade)
-                appDelegate.tweets.remove(at: indexPath.row)
-            }*/
-            
-            let urlString = kBaseURLString + "del-tweet.cgi"
+            let urlString = kBaseURLString + "/del-tweet.cgi"
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let parameters = [
-                "username" : appDelegate.username,
-                "session_token" : appDelegate.session_token,
+                "username" : SSKeychain.password(forService: kWazzuTwitterPassword, account: "username") as String,
+                "session_token" : SSKeychain.password(forService: kWazzuTwitterPassword, account: "session_token") as String,
                 "tweet_id"   : appDelegate.tweets[indexPath.row].tweet_id
                 ] as [String : Any]
             
@@ -170,7 +168,7 @@ class TweetsTableViewController: UITableViewController {
                     case .success(let JSON):
                         let data = JSON as! [String:AnyObject]
                         if data["isdeleted"] as! Int == 1{
-                            tableView.deleteRows(at: [indexPath], with: .fade)
+                            self.tableView.deleteRows(at: [indexPath], with: .fade)
                             appDelegate.tweets.remove(at: indexPath.row)
                         }
                         
@@ -195,18 +193,8 @@ class TweetsTableViewController: UITableViewController {
                     }
                 })
         }
+        
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
     
     
     /*
@@ -237,7 +225,7 @@ class TweetsTableViewController: UITableViewController {
                     else{
                         //XXX implent delete tweet
                         if !appDelegate.tweets.isEmpty{
-                            //let index = appDelegate.tweets.index(of: tweet)
+                            //let index = appDelegate.tweets.index(where: $0.tweet_id == tweet["tweet_id"] as! Int)
                         }
                     }
                 }
@@ -318,34 +306,42 @@ class TweetsTableViewController: UITableViewController {
         
         // Login user alert
         if self.enableLogin == true {
-            alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
-                
-                let alertC = UIAlertController(title: "Login", message: "Please login", preferredStyle: .alert)
-                
-                alertC.addTextField { (textField : UITextField) -> Void in
-                    textField.placeholder = "Username"
-                }
-                alertC.addTextField { (textField : UITextField) -> Void in
-                    textField.isSecureTextEntry = true
-                    textField.placeholder = "Password"
-                }
-                
-                alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-                
-                alertC.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
-                    let usernameTextField = alertC.textFields![0]
-                    let passwordTextField = alertC.textFields![1]
+            //if user previously logged in, relog in user
+            if SSKeychain.password(forService: kWazzuTwitterPassword, account: "session_key") != nil {
+                let username = SSKeychain.password(forService: kWazzuTwitterPassword, account: "username")
+                let password = SSKeychain.password(forService: kWazzuTwitterPassword, account: "password")
+                self.loginUser(username!, password: password!)
+            }
+            else{
+                alertController.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
                     
-                    // ... check for empty textfields
-                    if let username = usernameTextField.text {
-                        if let password = passwordTextField.text {
-                            self.loginUser(username, password: password)
-                        }
+                    let alertC = UIAlertController(title: "Login", message: "Please login", preferredStyle: .alert)
+                    
+                    alertC.addTextField { (textField : UITextField) -> Void in
+                        textField.placeholder = "Username"
                     }
+                    alertC.addTextField { (textField : UITextField) -> Void in
+                        textField.isSecureTextEntry = true
+                        textField.placeholder = "Password"
+                    }
+                    
+                    alertC.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                    
+                    alertC.addAction(UIAlertAction(title: "Login", style: .default, handler: { _ in
+                        let usernameTextField = alertC.textFields![0]
+                        let passwordTextField = alertC.textFields![1]
+                        
+                        // ... check for empty textfields
+                        if let username = usernameTextField.text {
+                            if let password = passwordTextField.text {
+                                self.loginUser(username, password: password)
+                            }
+                        }
+                    }))
+                    
+                    self.present(alertC, animated: true, completion: nil)
                 }))
-                
-                self.present(alertC, animated: true, completion: nil)
-            }))
+            }
         }
         
         // Logout user alert
@@ -353,15 +349,18 @@ class TweetsTableViewController: UITableViewController {
             alertController.addAction(UIAlertAction(title: "Logout", style: .default, handler: { _ in
                 let alertC = UIAlertController(title: "Logout", message: "You successfully logged out", preferredStyle: .alert)
                 alertC.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                let password = SSKeychain.password(forService: kWazzuTwitterPassword, account: appDelegate.username)
-                if appDelegate.session_token != "" {
-                    if self.logoutUser(appDelegate.username, password: password!) == true{
+                let session_token = SSKeychain.password(forService: kWazzuTwitterPassword, account: "session_token")
+                
+                if session_token != nil {
+                    let password = SSKeychain.password(forService: kWazzuTwitterPassword, account: "password")
+                    let username = SSKeychain.password(forService: kWazzuTwitterPassword, account: "username")
+                    
+                    if self.logoutUser(username!, password: password!) == true{
                         self.present(alertC, animated: true, completion: nil)
                     }
                 }
                 else {
-                    self.displayErrorMessageAlert(error: "There is user loggin for this session !!")
+                    self.displayErrorMessageAlert(error: "There is no user loggin for this session !!")
                 }
             }))
         }
@@ -390,16 +389,17 @@ class TweetsTableViewController: UITableViewController {
             .responseJSON(completionHandler:  {response in
             switch(response.result) {
             case .success(let JSON):
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 let dict = JSON as! [String : AnyObject]
-                appDelegate.username = username
-                appDelegate.session_token = dict["session_token"] as! String
                 self.addTweetButton.isEnabled = true
                 self.enableLogout = true
                 self.enableRegister = false
                 self.enableLogin = false
-                self.title = appDelegate.username
-                SSKeychain.setPassword(password, forService: kWazzuTwitterPassword, account: username)
+                self.title = username
+                
+                // save user info in the Keychain for it to be encrypted
+                SSKeychain.setPassword(username, forService: kWazzuTwitterPassword, account: "username")
+                SSKeychain.setPassword(password, forService: kWazzuTwitterPassword, account: "password")
+                SSKeychain.setPassword(dict["session_token"] as! String, forService: kWazzuTwitterPassword, account: "session_token")
 
             case .failure( _):
                 if let httpStatusCode = response.response?.statusCode {
@@ -437,15 +437,17 @@ class TweetsTableViewController: UITableViewController {
                 switch(response.result){
                 case .success(let JSON):
                     let dict = JSON as! [String : AnyObject]
-                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                    appDelegate.username = username
-                    appDelegate.session_token = dict["session_token"] as! String
                     self.addTweetButton.isEnabled = true
                     self.enableLogout = true
                     self.enableRegister = false
                     self.enableLogin = false
-                    self.title = appDelegate.username
-                    SSKeychain.setPassword(password, forService: kWazzuTwitterPassword, account: username)
+                    self.title = username
+                    
+                    // save user info in the Keychain for it to be encrypted
+                    SSKeychain.setPassword(username, forService: kWazzuTwitterPassword, account: "username")
+                    SSKeychain.setPassword(password, forService: kWazzuTwitterPassword, account: "password")
+                    SSKeychain.setPassword(dict["session_token"] as! String, forService: kWazzuTwitterPassword, account: "session_token")
+                    
                 case .failure( _):
                     if let httpStatusCode = response.response?.statusCode {
                         switch(httpStatusCode) {
@@ -472,8 +474,7 @@ class TweetsTableViewController: UITableViewController {
     func logoutUser(_ username:String, password:String) -> Bool {
         
         var flag = false
-        let urlString = kBaseURLString + "login.cgi"
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let urlString = kBaseURLString + "/login.cgi"
         let parameters = [
             "username" : username,
             "password" : password,
@@ -485,13 +486,16 @@ class TweetsTableViewController: UITableViewController {
                 switch(response.result){
                 case .success(let JSON):
                     let data = JSON as! [String : AnyObject]
-                    let session_token = data["session_token"] as! Int
+                    let session_token = data["session_token"] as! String
                     
-                    if session_token == 0 {
+                    if session_token == "0" {
                         flag = true
-                        SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: username)
-                        appDelegate.username = ""
-                        appDelegate.session_token = ""
+
+                        // delete user info from keycain upon logout
+                        SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: "username")
+                        SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: "password")
+                        SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: "session_token")
+                        
                         self.enableLogin = true
                         self.enableRegister = true
                         self.enableLogout = false
@@ -521,7 +525,7 @@ class TweetsTableViewController: UITableViewController {
     
     /*
      Delete tweet user helper function
-     */
+ 
     func deleteTweet(index:Int) -> Bool {
         var flag = false
         let urlString = kBaseURLString + "del-tweet.cgi"
@@ -562,6 +566,7 @@ class TweetsTableViewController: UITableViewController {
             })
         return flag
     }
+  */
     
     /*
         Display error returnned from server

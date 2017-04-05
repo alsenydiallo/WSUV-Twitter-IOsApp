@@ -9,18 +9,18 @@
 import UIKit
 import Alamofire
 
-class AddTweetTableViewController: UITableViewController {
+class AddTweetTableViewController: UITableViewController, UITextViewDelegate {
 
     @IBOutlet weak var textViewField: UITextView!
+    @IBOutlet weak var characterCountLabel: UILabel!
     
     @IBAction func done(_ sender: UIBarButtonItem) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         
         if let tweet_text = textViewField.text{
             
             let parameters = [
-                "username" : appDelegate.username,
-                "session_token": appDelegate.session_token,
+                "username" : SSKeychain.password(forService: kWazzuTwitterPassword, account: "username") as String,
+                "session_token": SSKeychain.password(forService: kWazzuTwitterPassword, account: "session_token") as String,
                 "tweet" : tweet_text
             ]
             
@@ -28,21 +28,23 @@ class AddTweetTableViewController: UITableViewController {
                 .responseJSON{ response in
                     
                     switch(response.result){
-                    case .success(let JSON):
+                    case .success(_):
                         self.textViewField.resignFirstResponder()
-                        let data = JSON as! [String : AnyObject]
                         self.dismiss(animated: true, completion: {
                             NotificationCenter.default.post(name: kAddTweetNotification, object: nil)
                         })
-                    case .failure(let error):
+
+                    case .failure(_):
                         if let httpStatusCode = response.response?.statusCode {
                             switch(httpStatusCode) {
                             case 404:
-                                self.displayErrorMessageAlert(error: "404 invalid request, \(error.localizedDescription)")
+                                self.displayErrorMessageAlert(error: "404 invalid request.")
                             case 500:
-                                self.displayErrorMessageAlert(error: "Server error, \(error.localizedDescription)")
+                                self.displayErrorMessageAlert(error: "Internal server error.")
+                            case 503:
+                                self.displayErrorMessageAlert(error: "unable to connect to internal database.")
                             default:
-                                self.displayErrorMessageAlert(error: "Error occured, \(error.localizedDescription)")
+                                break
                             }
                         }
                         
@@ -50,6 +52,15 @@ class AddTweetTableViewController: UITableViewController {
             }
             
         }
+    }
+    
+    func textView(_  textField: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        //let newLength = textViewField.text.utf16.count + string.utf16.count - range.length
+        let newLength = textViewField.text.characters.count
+        NSLog("newLength = \(newLength)")
+        characterCountLabel.text =  String(newLength) + String(" /count ")         //change the value of the label
+        //return true to allow the change, if you want to limit the number of characters in the text field to just allow up to 25 characters
+        return newLength <= 200
     }
     
     @IBAction func cancel(_ sender: UIBarButtonItem) {
@@ -73,6 +84,8 @@ class AddTweetTableViewController: UITableViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
+        characterCountLabel.text = String("0 /count  ")
+        textViewField.delegate = self
     }
     
     func displayErrorMessageAlert(error : String) {

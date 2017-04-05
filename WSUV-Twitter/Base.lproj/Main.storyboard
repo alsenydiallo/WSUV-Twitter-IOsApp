@@ -58,7 +58,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SB6-OO-LPR" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="540" y="-63"/>
+            <point key="canvasLocation" x="540" y="-63.418290854572717"/>
         </scene>
         <!--Add a tweet-->
         <scene sceneID="EnA-UF-Sra">
@@ -68,17 +68,24 @@
                         <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <label key="tableHeaderView" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ibB-cI-7FJ" userLabel="Character Count Label">
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="24"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
                         <sections>
                             <tableViewSection id="l6r-sO-7Lp">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="152" id="77a-1x-fyO">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="152"/>
+                                        <rect key="frame" x="0.0" y="24" width="375" height="152"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="77a-1x-fyO" id="FSF-ES-y6g">
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="77a-1x-fyO" id="FSF-ES-y6g" userLabel="Tweet Content View">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="151.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" keyboardDismissMode="onDrag" text="Hi, this is a test !!" translatesAutoresizingMaskIntoConstraints="NO" id="cvz-f5-jH5">
+                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" keyboardDismissMode="onDrag" translatesAutoresizingMaskIntoConstraints="NO" id="cvz-f5-jH5" userLabel="Tweet Text View Field">
                                                     <rect key="frame" x="0.0" y="0.0" width="375" height="152"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -112,12 +119,13 @@
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="characterCountLabel" destination="ibB-cI-7FJ" id="NNy-Pt-lFF"/>
                         <outlet property="textViewField" destination="cvz-f5-jH5" id="JvI-Xb-fsQ"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tW2-PG-58b" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="540" y="654"/>
+            <point key="canvasLocation" x="540" y="653.52323838080963"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="brX-KS-2rl">
