@@ -73,11 +73,15 @@ class TweetsTableViewController: UITableViewController {
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
 
-        //self.refreshTweets(self)
+        self.refreshTweets(self)
         
         
         if self.enableLogin == true {
             addTweetButton.isEnabled = false
+            // delete user info from keycain upon logout
+            SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: "username")
+            SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: "password")
+            SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: "session_token")
         }
         
         NotificationCenter.default.addObserver(
@@ -168,8 +172,8 @@ class TweetsTableViewController: UITableViewController {
                     case .success(let JSON):
                         let data = JSON as! [String:AnyObject]
                         if data["isdeleted"] as! Int == 1{
-                            self.tableView.deleteRows(at: [indexPath], with: .fade)
                             appDelegate.tweets.remove(at: indexPath.row)
+                            tableView.deleteRows(at: [indexPath], with: .fade)
                         }
                         
                     case .failure(_):

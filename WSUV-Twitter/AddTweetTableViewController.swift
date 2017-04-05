@@ -57,7 +57,6 @@ class AddTweetTableViewController: UITableViewController, UITextViewDelegate {
     func textView(_  textField: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         //let newLength = textViewField.text.utf16.count + string.utf16.count - range.length
         let newLength = textViewField.text.characters.count
-        NSLog("newLength = \(newLength)")
         characterCountLabel.text =  String(newLength) + String(" /count ")         //change the value of the label
         //return true to allow the change, if you want to limit the number of characters in the text field to just allow up to 25 characters
         return newLength <= 200
