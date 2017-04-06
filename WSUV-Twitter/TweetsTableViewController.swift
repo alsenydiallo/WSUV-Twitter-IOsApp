@@ -72,9 +72,6 @@ class TweetsTableViewController: UITableViewController {
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
-
-        //self.refreshTweets(self)
-        
         
         if self.enableLogin == true {
             addTweetButton.isEnabled = false
@@ -83,6 +80,7 @@ class TweetsTableViewController: UITableViewController {
             SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: "password")
             SSKeychain.deletePassword(forService: kWazzuTwitterPassword, account: "session_token")
         }
+        self.refreshTweets(self)
         
         NotificationCenter.default.addObserver(
             forName: kAddTweetNotification,
