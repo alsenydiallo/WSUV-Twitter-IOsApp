@@ -126,6 +126,10 @@ class TweetsTableViewController: UITableViewController {
         
         cell.textLabel?.numberOfLines = 0 // multi-line label
         cell.textLabel?.attributedText = attributedStringForTweet(tweet)
+        
+        //let image : UIImage = UIImage(named: "icon-messages-app")!
+        //print("The loaded image: \(image)")
+        //cell.imageView?.image = image
 
         return cell
     }
